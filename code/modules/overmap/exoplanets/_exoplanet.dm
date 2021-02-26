@@ -141,10 +141,10 @@
 	var/light = 0.1
 	if(!night)
 		light = lightlevel
-	for(var/turf/exterior/T in block(locate(daycolumn,1,min(map_z)),locate(daycolumn,maxy,max(map_z))))
+	for(var/turf/exterior/T in block(locate(daycolumn + TRANSITIONEDGE,1,min(map_z)),locate(daycolumn + TRANSITIONEDGE,maxy,max(map_z))))
 		T.set_light(light, 0.1, 2)
 	daycolumn++
-	if(daycolumn > maxx)
+	if(daycolumn > x_size)
 		daycolumn = 0
 
 /obj/effect/overmap/visitable/sector/exoplanet/proc/generate_map()
