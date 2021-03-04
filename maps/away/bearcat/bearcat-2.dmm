@@ -145,7 +145,7 @@
 /turf/simulated/floor/tiled/dark/usedup,
 /area/ship/scrap/command/bridge)
 "aw" = (
-/obj/machinery/requests_console{
+/obj/machinery/network/requests_console{
 	announcementConsole = 1;
 	department = "Captain";
 	pixel_x = 32
@@ -336,7 +336,7 @@
 /turf/simulated/floor/usedup,
 /area/ship/scrap/comms)
 "aO" = (
-/obj/machinery/message_server,
+/obj/machinery/network/message_server,
 /turf/simulated/floor/bluegrid/airless,
 /area/ship/scrap/comms)
 "aP" = (
@@ -843,7 +843,7 @@
 /turf/simulated/floor/tiled/usedup,
 /area/ship/scrap/dock)
 "bA" = (
-/obj/structure/closet/walllocker/emerglocker/south,
+/obj/structure/emergency_dispenser/south,
 /obj/item/radio/intercom{
 	pixel_x = -32
 	},
@@ -1248,7 +1248,7 @@
 /turf/simulated/floor/tiled/usedup,
 /area/ship/scrap/crew/saloon)
 "co" = (
-/obj/structure/closet/walllocker/emerglocker/north,
+/obj/structure/emergency_dispenser/north,
 /obj/structure/bed/chair/wood,
 /obj/item/deck/tarot,
 /turf/simulated/floor/tiled/usedup,
@@ -1424,7 +1424,7 @@
 "cK" = (
 /obj/structure/table/standard,
 /obj/random/smokes,
-/obj/item/material/ashtray/glass,
+/obj/item/ashtray/glass,
 /obj/structure/cable{
 	d1 = 1;
 	d2 = 2;
@@ -1929,7 +1929,7 @@
 /area/ship/scrap/crew/kitchen)
 "dx" = (
 /obj/structure/disposalpipe/segment,
-/obj/structure/closet/walllocker/emerglocker/east,
+/obj/structure/emergency_dispenser/east,
 /obj/machinery/light_switch{
 	pixel_x = -25
 	},
@@ -1995,7 +1995,7 @@
 /turf/simulated/floor/tiled/usedup,
 /area/ship/scrap/crew/kitchen)
 "dG" = (
-/obj/structure/closet/walllocker/emerglocker/north,
+/obj/structure/emergency_dispenser/north,
 /obj/structure/closet/secure_closet/freezer/fridge/bearcat,
 /obj/machinery/light/small{
 	icon_state = "bulb1";
@@ -2081,7 +2081,7 @@
 /obj/structure/sign/warning/nosmoking_2{
 	pixel_y = 28
 	},
-/obj/structure/closet/walllocker/emerglocker/west,
+/obj/structure/emergency_dispenser/west,
 /obj/machinery/light/small{
 	icon_state = "bulb1";
 	dir = 8
@@ -2278,10 +2278,6 @@
 /obj/item/storage/pill_bottle/burn_meds,
 /turf/simulated/floor/tiled/white,
 /area/ship/scrap/crew/medbay)
-"eh" = (
-/obj/effect/paint/brown,
-/turf/simulated/wall/r_wall,
-/area/ship/scrap/maintenance/engine/starboard)
 "ei" = (
 /obj/effect/wallframe_spawn/reinforced,
 /obj/machinery/door/blast/regular{
@@ -2305,7 +2301,7 @@
 	},
 /obj/item/storage/box/donkpockets,
 /obj/effect/floor_decal/corner/red/diagonal,
-/obj/item/material/kitchen/rollingpin,
+/obj/item/kitchen/rollingpin,
 /obj/item/chems/food/condiment/small/saltshaker{
 	pixel_x = -3;
 	pixel_y = 0
@@ -2834,19 +2830,6 @@
 	},
 /turf/simulated/floor/usedup,
 /area/space)
-"eS" = (
-/obj/structure/cable{
-	d1 = 4;
-	d2 = 8;
-	icon_state = "4-8"
-	},
-/obj/machinery/atmospherics/pipe/simple/hidden/fuel{
-	icon_state = "intact";
-	dir = 4
-	},
-/obj/machinery/door/airlock/autoname/engineering/bearcat,
-/turf/simulated/floor/usedup,
-/area/ship/scrap/maintenance/engine/starboard)
 "eT" = (
 /obj/machinery/light/small{
 	icon_state = "bulb1";
@@ -3262,19 +3245,6 @@
 /obj/effect/paint/red,
 /turf/simulated/wall,
 /area/ship/scrap/maintenance/engine/starboard)
-"fC" = (
-/obj/machinery/atmospherics/unary/engine{
-	icon_state = "nozzle";
-	dir = 1
-	},
-/turf/simulated/floor/usedup,
-/area/ship/scrap/maintenance/engine/starboard)
-"fD" = (
-/obj/effect/floor_decal/industrial/warning,
-/obj/structure/sign/warning/hot_exhaust,
-/obj/effect/paint/red,
-/turf/simulated/wall/r_wall,
-/area/ship/scrap/maintenance/engine/starboard)
 "fE" = (
 /obj/machinery/door/blast/regular{
 	density = 0;
@@ -3283,19 +3253,8 @@
 	name = "External Blast Doors";
 	opacity = 0
 	},
-/turf/space,
-/area/space)
-"fF" = (
-/obj/structure/lattice,
-/obj/machinery/door/blast/regular{
-	density = 0;
-	icon_state = "pdoor0";
-	id_tag = "scraplock";
-	name = "External Blast Doors";
-	opacity = 0
-	},
-/turf/space,
-/area/space)
+/turf/simulated/floor/airless,
+/area/ship/scrap/maintenance/engine/port)
 "fG" = (
 /obj/structure/lattice,
 /obj/machinery/atmospherics/pipe/simple/hidden/fuel{
@@ -3395,7 +3354,7 @@
 /turf/simulated/floor/tiled/usedup,
 /area/ship/scrap/cargo)
 "fO" = (
-/obj/structure/closet/walllocker/emerglocker/west,
+/obj/structure/emergency_dispenser/west,
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -3492,7 +3451,7 @@
 /turf/simulated/floor/tiled/usedup,
 /area/ship/scrap/crew/wash)
 "fY" = (
-/obj/structure/closet/walllocker/emerglocker/east,
+/obj/structure/emergency_dispenser/east,
 /obj/structure/disposalpipe/segment,
 /obj/structure/cable{
 	d1 = 1;
@@ -4543,7 +4502,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
 	},
-/obj/effect/decal/cleanable/liquid_fuel,
+/obj/effect/fluid_mapped/fuel,
 /turf/simulated/floor/tiled/usedup,
 /area/ship/scrap/maintenance/engineering)
 "hI" = (
@@ -4619,7 +4578,7 @@
 /turf/space,
 /area/ship/scrap/maintenance/atmos)
 "hN" = (
-/obj/item/material/shard,
+/obj/item/shard,
 /turf/simulated/floor/airless,
 /area/ship/scrap/maintenance/atmos)
 "hO" = (
@@ -4675,7 +4634,7 @@
 /turf/simulated/floor/tiled/airless,
 /area/ship/scrap/maintenance/atmos)
 "hS" = (
-/obj/structure/closet/walllocker/emerglocker/west,
+/obj/structure/emergency_dispenser/west,
 /obj/effect/floor_decal/corner/yellow{
 	icon_state = "corner_white";
 	dir = 10
@@ -4752,7 +4711,7 @@
 	icon_state = "corner_white";
 	dir = 10
 	},
-/obj/effect/decal/cleanable/liquid_fuel,
+/obj/effect/fluid_mapped/fuel,
 /obj/machinery/vending/cigarette,
 /turf/simulated/floor/tiled/usedup,
 /area/ship/scrap/maintenance/engineering)
@@ -4762,7 +4721,7 @@
 	icon_state = "corner_white";
 	dir = 10
 	},
-/obj/effect/decal/cleanable/liquid_fuel,
+/obj/effect/fluid_mapped/fuel,
 /obj/structure/sign/warning/nosmoking_1{
 	pixel_y = -32
 	},
@@ -4814,7 +4773,7 @@
 /turf/simulated/floor/usedup,
 /area/ship/scrap/maintenance/power)
 "id" = (
-/obj/item/material/shard,
+/obj/item/shard,
 /obj/structure/lattice,
 /turf/space,
 /area/ship/scrap/maintenance/atmos)
@@ -4972,7 +4931,7 @@
 	pixel_y = 32
 	},
 /obj/machinery/atmospherics/portables_connector,
-/obj/item/stack/material/glass/phoronrglass{
+/obj/item/stack/material/glass/reinforced_borosilicate{
 	amount = 5
 	},
 /turf/simulated/floor/airless,
@@ -5008,11 +4967,6 @@
 /turf/simulated/floor/airless,
 /area/ship/scrap/maintenance/engine/aft)
 "iy" = (
-/obj/machinery/atmospherics/portables_connector,
-/obj/machinery/portable_atmospherics/canister/phoron,
-/turf/simulated/floor/airless,
-/area/ship/scrap/maintenance/engine/aft)
-"iz" = (
 /obj/machinery/atmospherics/portables_connector,
 /turf/simulated/floor/airless,
 /area/ship/scrap/maintenance/engine/aft)
@@ -5222,20 +5176,17 @@
 /turf/simulated/floor/airless,
 /area/ship/scrap/maintenance/engine/aft)
 "iV" = (
-/obj/structure/window/phoronreinforced{
-	icon_state = "phoronrwindow";
+/obj/structure/window/borosilicate_reinforced{
 	dir = 8
 	},
-/obj/structure/window/phoronreinforced{
-	icon_state = "phoronrwindow";
+/obj/structure/window/borosilicate_reinforced{
 	dir = 1
 	},
 /obj/machinery/atmospherics/pipe/simple/heat_exchanging/junction,
 /turf/simulated/floor/reinforced/airless,
 /area/ship/scrap/maintenance/engine/aft)
 "iW" = (
-/obj/structure/window/phoronreinforced{
-	icon_state = "phoronrwindow";
+/obj/structure/window/borosilicate_reinforced{
 	dir = 1
 	},
 /obj/machinery/meter/turf,
@@ -5245,12 +5196,10 @@
 /turf/simulated/floor/reinforced/airless,
 /area/ship/scrap/maintenance/engine/aft)
 "iX" = (
-/obj/structure/window/phoronreinforced{
-	icon_state = "phoronrwindow";
+/obj/structure/window/borosilicate_reinforced{
 	dir = 4
 	},
-/obj/structure/window/phoronreinforced{
-	icon_state = "phoronrwindow";
+/obj/structure/window/borosilicate_reinforced{
 	dir = 1
 	},
 /obj/machinery/atmospherics/pipe/simple/heat_exchanging{
@@ -5264,11 +5213,11 @@
 /turf/simulated/floor/reinforced/airless,
 /area/ship/scrap/maintenance/engine/aft)
 "iY" = (
-/obj/structure/window/phoronreinforced,
+/obj/structure/window/borosilicate_reinforced,
 /obj/machinery/atmospherics/binary/pump{
 	dir = 8
 	},
-/obj/item/stack/material/glass/phoronrglass{
+/obj/item/stack/material/glass/reinforced_borosilicate{
 	amount = 20
 	},
 /turf/simulated/floor/airless,
@@ -5343,8 +5292,7 @@
 /turf/simulated/floor/airless,
 /area/ship/scrap/maintenance/engine/aft)
 "jg" = (
-/obj/structure/window/phoronreinforced{
-	icon_state = "phoronrwindow";
+/obj/structure/window/borosilicate_reinforced{
 	dir = 8
 	},
 /obj/machinery/atmospherics/pipe/simple/heat_exchanging,
@@ -5410,7 +5358,7 @@
 /area/ship/scrap/maintenance/atmos)
 "js" = (
 /obj/machinery/atmospherics/valve/open,
-/obj/item/material/shard/phoron,
+/obj/item/shard/borosilicate,
 /turf/simulated/floor/airless,
 /area/ship/scrap/maintenance/engine/aft)
 "jt" = (
@@ -5427,9 +5375,8 @@
 /turf/simulated/floor/reinforced,
 /area/ship/scrap/maintenance/engine/aft)
 "jv" = (
-/obj/structure/window/phoronreinforced,
-/obj/structure/window/phoronreinforced{
-	icon_state = "phoronrwindow";
+/obj/structure/window/borosilicate_reinforced,
+/obj/structure/window/borosilicate_reinforced{
 	dir = 4
 	},
 /obj/machinery/atmospherics/pipe/simple/heat_exchanging/junction{
@@ -5446,8 +5393,7 @@
 /turf/simulated/floor/reinforced,
 /area/ship/scrap/maintenance/engine/aft)
 "jw" = (
-/obj/structure/window/phoronreinforced{
-	icon_state = "phoronrwindow";
+/obj/structure/window/borosilicate_reinforced{
 	dir = 1
 	},
 /obj/machinery/atmospherics/binary/pump{
@@ -5497,8 +5443,7 @@
 /obj/item/multitool{
 	pixel_x = 5
 	},
-/obj/item/pipe_painter,
-/obj/item/clamp,
+/obj/item/paint_sprayer,
 /turf/simulated/floor/usedup,
 /area/ship/scrap/maintenance/atmos)
 "jD" = (
@@ -5526,7 +5471,7 @@
 /turf/simulated/floor/airless,
 /area/ship/scrap/maintenance/engine/aft)
 "jG" = (
-/obj/item/material/shard/phoron,
+/obj/item/shard/borosilicate,
 /turf/simulated/floor/airless,
 /area/ship/scrap/maintenance/engine/aft)
 "jH" = (
@@ -5729,6 +5674,23 @@
 /obj/effect/paint/brown,
 /turf/simulated/wall/r_wall,
 /area/ship/scrap/crew/hallway/port)
+"oR" = (
+/obj/machinery/door/blast/regular{
+	density = 0;
+	icon_state = "pdoor0";
+	id_tag = "scraplock";
+	name = "External Blast Doors";
+	opacity = 0
+	},
+/turf/simulated/floor/airless,
+/area/ship/scrap/maintenance/engine/starboard)
+"rH" = (
+/obj/machinery/atmospherics/unary/engine{
+	icon_state = "nozzle";
+	dir = 1
+	},
+/turf/simulated/floor/usedup,
+/area/ship/scrap/maintenance/engine/starboard)
 "so" = (
 /obj/effect/paint/brown,
 /turf/simulated/wall/r_wall,
@@ -5767,6 +5729,11 @@
 /obj/effect/paint/brown,
 /turf/simulated/wall/r_wall,
 /area/ship/scrap/maintenance/atmos)
+"xs" = (
+/obj/effect/floor_decal/industrial/warning,
+/obj/effect/paint/red,
+/turf/simulated/wall/r_wall,
+/area/ship/scrap/maintenance/engine/starboard)
 "xU" = (
 /obj/effect/paint/brown,
 /turf/simulated/wall/r_wall,
@@ -5782,7 +5749,20 @@
 /obj/effect/floor_decal/industrial/warning,
 /obj/effect/paint/red,
 /turf/simulated/wall/r_wall,
-/area/space)
+/area/ship/scrap/maintenance/engine/port)
+"Cy" = (
+/obj/structure/cable{
+	d1 = 4;
+	d2 = 8;
+	icon_state = "4-8"
+	},
+/obj/machinery/atmospherics/pipe/simple/hidden/fuel{
+	icon_state = "intact";
+	dir = 4
+	},
+/obj/machinery/door/airlock/autoname/engineering/bearcat,
+/turf/simulated/floor/usedup,
+/area/ship/scrap/maintenance/engine/starboard)
 "Dr" = (
 /obj/structure/closet/secure_closet/engineering_electrical/bearcat,
 /obj/item/cell/device/standard,
@@ -5822,7 +5802,7 @@
 /turf/simulated/floor/reinforced/airless,
 /area/ship/scrap/maintenance/atmos)
 "IG" = (
-/obj/item/material/shard,
+/obj/item/shard,
 /obj/machinery/atmospherics/unary/outlet_injector{
 	icon_state = "map_injector";
 	dir = 8;
@@ -5856,7 +5836,7 @@
 	},
 /obj/structure/table/standard,
 /obj/item/toy/prize/powerloader,
-/obj/item/material/ashtray/plastic,
+/obj/item/ashtray/plastic,
 /obj/machinery/recharger,
 /obj/structure/sign/poster{
 	pixel_y = 32
@@ -5870,6 +5850,12 @@
 /obj/effect/paint/brown,
 /turf/simulated/wall/r_wall,
 /area/ship/scrap/dock)
+"LS" = (
+/obj/effect/floor_decal/industrial/warning,
+/obj/structure/sign/warning/hot_exhaust,
+/obj/effect/paint/red,
+/turf/simulated/wall/r_wall,
+/area/ship/scrap/maintenance/engine/starboard)
 "LW" = (
 /obj/effect/paint/brown,
 /turf/simulated/wall/r_wall,
@@ -5928,7 +5914,7 @@
 /turf/simulated/floor/airless,
 /area/ship/scrap/maintenance/engine/aft)
 "Sm" = (
-/obj/structure/closet/walllocker/emerglocker/west,
+/obj/structure/emergency_dispenser/west,
 /obj/machinery/atmospherics/pipe/simple/hidden/fuel,
 /obj/structure/cable{
 	d1 = 1;
@@ -5947,6 +5933,10 @@
 /obj/effect/paint/brown,
 /turf/simulated/wall/r_wall,
 /area/ship/scrap/crew/wash)
+"UD" = (
+/obj/effect/paint/brown,
+/turf/simulated/wall/r_wall,
+/area/ship/scrap/maintenance/engine/starboard)
 "Va" = (
 /obj/effect/paint/brown,
 /turf/simulated/wall/r_wall,
@@ -11283,8 +11273,8 @@ aa
 aa
 aa
 aa
-xU
-xU
+dR
+dR
 Cs
 aa
 aa
@@ -11774,7 +11764,7 @@ dR
 eC
 dR
 fk
-fF
+fE
 bY
 aa
 aa
@@ -13493,7 +13483,7 @@ JC
 hH
 hY
 ij
-iz
+iy
 iL
 ja
 jl
@@ -14454,11 +14444,11 @@ aa
 aa
 aa
 bY
-eh
-eS
+UD
+Cy
 fh
 fB
-fF
+oR
 aa
 aa
 aa
@@ -14575,11 +14565,11 @@ aa
 aa
 aa
 aa
-eh
-eh
+UD
+UD
 eT
 fi
-fC
+rH
 aa
 aa
 aa
@@ -14697,11 +14687,11 @@ aa
 aa
 aa
 aa
-eh
-eh
+UD
+UD
 eU
 fj
-fC
+rH
 aa
 aa
 aa
@@ -14820,11 +14810,11 @@ aa
 aa
 aa
 aa
-eh
-eh
-eh
-fD
-fE
+UD
+UD
+UD
+LS
+oR
 aa
 aa
 aa
@@ -14943,9 +14933,9 @@ aa
 aa
 aa
 aa
-xU
-xU
-Cs
+UD
+UD
+xs
 aa
 aa
 aa

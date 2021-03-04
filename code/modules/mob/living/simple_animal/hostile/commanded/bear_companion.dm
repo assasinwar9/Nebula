@@ -15,7 +15,10 @@
 	natural_weapon = /obj/item/natural_weapon/claws
 	can_escape = TRUE
 
-	max_gas = list(MAT_PHORON = 2, MAT_CO2 = 5)
+	max_gas = list(
+		/decl/material/gas/chlorine = 2, 
+		/decl/material/gas/carbon_dioxide = 5
+	)
 
 	response_help = "pets"
 	response_harm = "hits"
@@ -28,7 +31,7 @@
 	if(.)
 		src.emote("roars in rage!")
 
-/mob/living/simple_animal/hostile/commanded/bear/attack_hand(mob/living/carbon/human/M)
+/mob/living/simple_animal/hostile/commanded/bear/attack_hand(mob/M)
 	..()
 	if(M.a_intent == I_HURT)
 		src.emote("roars in rage!")

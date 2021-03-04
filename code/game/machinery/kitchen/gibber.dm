@@ -89,10 +89,11 @@
 	else
 		return ..()
 
-/obj/machinery/gibber/MouseDrop_T(mob/target, mob/user)
-	if(user.stat || user.restrained())
-		return
-	move_into_gibber(user,target)
+/obj/machinery/gibber/receive_mouse_drop(atom/dropping, mob/user)
+	. = ..()
+	if(!. && ismob(dropping))
+		move_into_gibber(user, dropping)
+		return TRUE
 
 /obj/machinery/gibber/proc/move_into_gibber(var/mob/user,var/mob/living/victim)
 
@@ -198,7 +199,7 @@
 			if(istype(thing, /obj/item/chems/food/snacks/meat))
 				var/obj/item/chems/food/snacks/meat/slab = thing
 				slab.SetName("[slab_name] [slab.name]")
-				slab.reagents.add_reagent(/decl/reagent/nutriment,slab_nutrition)
+				slab.reagents.add_reagent(/decl/material/liquid/nutriment,slab_nutrition)
 
 /obj/machinery/gibber/proc/finish_gibbing()
 	operating = 0

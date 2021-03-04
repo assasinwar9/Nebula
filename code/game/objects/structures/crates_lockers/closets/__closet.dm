@@ -31,7 +31,7 @@
 		verbs += /obj/structure/closet/proc/togglelock_verb
 
 	if(ispath(closet_appearance))
-		var/decl/closet_appearance/app = decls_repository.get_decl(closet_appearance)
+		var/decl/closet_appearance/app = GET_DECL(closet_appearance)
 		if(app)
 			icon = app.icon
 			color = null
@@ -85,16 +85,6 @@
 			return 0
 	return 1
 
-/obj/structure/closet/proc/dump_contents()
-	for(var/mob/M in src)
-		M.dropInto(loc)
-		if(M.client)
-			M.client.eye = M.client.mob
-			M.client.perspective = MOB_PERSPECTIVE
-
-	for(var/atom/movable/AM in src)
-		AM.dropInto(loc)
-
 /obj/structure/closet/proc/store_contents()
 	var/stored_units = 0
 
@@ -104,7 +94,7 @@
 		stored_units += store_mobs(stored_units)
 	if(storage_types & CLOSET_STORAGE_STRUCTURES)
 		stored_units += store_structures(stored_units)
-
+		
 /obj/structure/closet/proc/open()
 	if(src.opened)
 		return 0
@@ -112,7 +102,7 @@
 	if(!src.can_open())
 		return 0
 
-	src.dump_contents()
+	dump_contents()
 
 	src.opened = 1
 	playsound(src.loc, open_sound, 50, 1, -3)
@@ -217,29 +207,10 @@
 		to_chat(user, "<span class='notice'>It won't budge!</span>")
 		update_icon()
 
-// this should probably use dump_contents()
-/obj/structure/closet/ex_act(severity)
-	switch(severity)
-		if(1)
-			for(var/atom/movable/A in src)//pulls everything out of the locker and hits it with an explosion
-				A.forceMove(src.loc)
-				A.ex_act(severity + 1)
-			qdel(src)
-		if(2)
-			if(prob(50))
-				for (var/atom/movable/A in src)
-					A.forceMove(src.loc)
-					A.ex_act(severity + 1)
-				qdel(src)
-		if(3)
-			if(prob(5))
-				for(var/atom/movable/A in src)
-					A.forceMove(src.loc)
-				qdel(src)
-
-/obj/structure/closet/destroyed()
-	dump_contents()
-	. = ..()
+/obj/structure/closet/explosion_act(severity)
+	..()
+	if(!QDELETED(src) && (severity == 1 || (severity == 2 && prob(50)) || (severity == 3 && prob(5))))
+		physically_destroyed()
 
 /obj/structure/closet/bullet_act(var/obj/item/projectile/Proj)
 	if(Proj.penetrating)
@@ -264,7 +235,7 @@
 	if(src.opened)
 		if(istype(W, /obj/item/grab))
 			var/obj/item/grab/G = W
-			src.MouseDrop_T(G.affecting, user)      //act like they were dragged onto the closet
+			src.receive_mouse_drop(G.affecting, user)      //act like they were dragged onto the closet
 			return 0
 		if(isWelder(W))
 			var/obj/item/weldingtool/WT = W
@@ -294,7 +265,7 @@
 			W.pixel_z = 0
 			W.pixel_w = 0
 		return
-	else if(istype(W, /obj/item/melee/energy/blade))
+	else if(istype(W, /obj/item/energy_blade/blade))
 		if(emag_act(INFINITY, user, "<span class='danger'>The locker has been sliced open by [user] with \an [W]</span>!", "<span class='danger'>You hear metal being sliced and sparks flying.</span>"))
 			var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
 			spark_system.set_up(5, 0, src.loc)
@@ -327,30 +298,15 @@
 						 "You hear welding.")
 	dismantle(src)
 
-/obj/structure/closet/MouseDrop_T(atom/movable/O, mob/user)
-	if(istype(O, /obj/screen))	//fix for HUD elements making their way into the world	-Pete
-		return
-	if(O.loc == user)
-		return
-	if(ismob(O) && src.large)
-		return
-	if(user.restrained() || user.stat || user.weakened || user.stunned || user.paralysis)
-		return
-	if((!( istype(O, /atom/movable) ) || O.anchored || !Adjacent(user) || !Adjacent(O) || !user.Adjacent(O) || user.contents.Find(src)))
-		return
-	if(!isturf(user.loc)) // are you in a container/closet/pod/etc?
-		return
-	if(!src.opened)
-		return
-	if(istype(O, /obj/structure/closet))
-		return
-	step_towards(O, src.loc)
-	if(user != O)
-		user.show_viewers("<span class='danger'>[user] stuffs [O] into [src]!</span>")
-	src.add_fingerprint(user)
-	return
+/obj/structure/closet/receive_mouse_drop(atom/dropping, mob/user)
+	. = ..()
+	if(!. && opened && !istype(dropping, /obj/structure/closet) && (large || !ismob(dropping)))
+		step_towards(dropping, loc)
+		if(user != dropping)
+			user.show_viewers(SPAN_DANGER("\The [user] stuffs \the [dropping] into \the [src]!"))
+		return TRUE
 
-/obj/structure/closet/attack_ai(mob/user)
+/obj/structure/closet/attack_ai(mob/living/silicon/ai/user)
 	if(istype(user, /mob/living/silicon/robot) && Adjacent(user)) // Robots can open/close it, but not the AI.
 		attack_hand(user)
 
@@ -449,7 +405,7 @@
 	if((setup & CLOSET_HAS_LOCK) && locked)
 		make_broken()
 
-	//Do this to prevent contents from being opened into nullspace (read: bluespace)
+	//Do this to prevent contents from being opened into nullspace
 	if(istype(loc, /obj/structure/bigDelivery))
 		var/obj/structure/bigDelivery/BD = loc
 		BD.unwrap()

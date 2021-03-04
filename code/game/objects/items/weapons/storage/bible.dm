@@ -79,26 +79,25 @@
 /obj/item/storage/bible/afterattack(atom/A, mob/user, proximity)
 	if(!proximity) return
 	if(user?.mind?.assigned_job?.is_holy)
-		if(A.reagents && A.reagents.has_reagent(/decl/reagent/water)) //blesses all the water in the holder
-			to_chat(user, "<span class='notice'>You bless \the [A].</span>") // I wish it was this easy in nethack
-			var/water2holy = REAGENT_VOLUME(A.reagents, /decl/reagent/water)
-			A.reagents.clear_reagent(/decl/reagent/water)
-			A.reagents.add_reagent(/decl/reagent/water/holywater,water2holy)
+		if(A.reagents && A.reagents.has_reagent(/decl/material/liquid/water)) //blesses all the water in the holder
+			to_chat(user, SPAN_NOTICE("You bless \the [A].")) // I wish it was this easy in nethack
+			LAZYSET(A.reagents.reagent_data, /decl/material/liquid/water, list("holy" = TRUE))
 
 /obj/item/storage/bible/attackby(obj/item/W, mob/user)
 	if (src.use_sound)
 		playsound(src.loc, src.use_sound, 50, 1, -5)
 	return ..()
 
-/obj/item/storage/bible/attack_self(mob/living/carbon/human/user)
+/obj/item/storage/bible/attack_self(mob/user)
 	if(!ishuman(user))
 		return
-	if(user?.mind?.assigned_job?.is_holy)
-		user.visible_message("\The [user] begins to read a passage from \the [src]...", "You begin to read a passage from \the [src]...")
-		if(do_after(user, 5 SECONDS))
-			user.visible_message("\The [user] reads a passage from \the [src].", "You read a passage from \the [src].")
-			for(var/mob/living/carbon/human/H in view(user))
-				if(user.get_cultural_value(TAG_RELIGION) == H.get_cultural_value(TAG_RELIGION))
+	var/mob/living/carbon/human/preacher = user
+	if(preacher.mind?.assigned_job?.is_holy)
+		preacher.visible_message("\The [preacher] begins to read a passage from \the [src]...", "You begin to read a passage from \the [src]...")
+		if(do_after(preacher, 5 SECONDS))
+			preacher.visible_message("\The [preacher] reads a passage from \the [src].", "You read a passage from \the [src].")
+			for(var/mob/living/carbon/human/H in view(preacher))
+				if(preacher.get_cultural_value(TAG_RELIGION) == H.get_cultural_value(TAG_RELIGION))
 					to_chat(H, SPAN_NOTICE("You feel calm and relaxed, at one with the universe."))
 
 /obj/item/storage/bible/verb/rename_bible()

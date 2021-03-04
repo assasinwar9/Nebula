@@ -230,7 +230,7 @@ steam.start() -- spawns the effect
 /obj/effect/effect/smoke/bad/affect(var/mob/living/carbon/M)
 	if (!..())
 		return 0
-	M.unequip_item()
+	M.drop_held_items()
 	M.adjustOxyLoss(1)
 	if (M.coughedtime != 1)
 		M.coughedtime = 1
@@ -259,7 +259,7 @@ steam.start() -- spawns the effect
 	if (!..())
 		return 0
 
-	M.unequip_item()
+	M.drop_held_items()
 	M:sleeping += 1
 	if (M.coughedtime != 1)
 		M.coughedtime = 1
@@ -286,7 +286,7 @@ steam.start() -- spawns the effect
 	if (R.wear_suit != null)
 		return 0
 
-	R.burn_skin(0.75)
+	R.take_overall_damage(0, 0.75)
 	if (R.coughedtime != 1)
 		R.coughedtime = 1
 		R.emote("gasp")

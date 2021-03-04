@@ -133,15 +133,10 @@
 /obj/machinery/camera/bullet_act(var/obj/item/projectile/P)
 	take_damage(P.get_structure_damage())
 
-/obj/machinery/camera/ex_act(severity)
-	if(src.invuln)
-		return
-
-	//camera dies if an explosion touches it!
-	if(severity <= 2 || prob(50))
+/obj/machinery/camera/explosion_act(severity)
+	..()
+	if(!invuln && !QDELETED(src) && (severity == 1 || prob(50)))
 		destroy()
-
-	..() //and give it the regular chance of being deleted outright
 
 /obj/machinery/camera/hitby(var/atom/movable/AM)
 	..()
@@ -167,7 +162,7 @@
 		destroy()
 		return TRUE
 
-/obj/machinery/camera/attackby(obj/item/W, mob/living/user)
+/obj/machinery/camera/attackby(obj/item/W, mob/user)
 	update_coverage()
 	var/datum/wires/camera/camera_wires = wires
 	// DECONSTRUCTION

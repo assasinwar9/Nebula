@@ -43,7 +43,7 @@ var/const/PROXIMITY_EXCLUDE_HOLDER_TURF = 1 // When acquiring turfs to monitor, 
 
 	if(!ispath(turf_selection, /decl/turf_selection))
 		CRASH("Invalid turf selection type set: [turf_selection]")
-	turf_selection = decls_repository.get_decl(turf_selection)
+	turf_selection = GET_DECL(turf_selection)
 
 	src.holder = holder
 	src.on_turf_entered = on_turf_entered
@@ -171,6 +171,6 @@ var/const/PROXIMITY_EXCLUDE_HOLDER_TURF = 1 // When acquiring turfs to monitor, 
 
 /obj/item/proxy_debug/proc/update_turfs(var/list/old_turfs, var/list/new_turfs)
 	for(var/turf/T in old_turfs)
-		T.overlays -= overlay
+		T.cut_overlay(overlay, TRUE)
 	for(var/turf/T in new_turfs)
-		T.overlays += overlay
+		T.add_overlay(overlay, TRUE)

@@ -4,6 +4,7 @@
 	health = 20
 	maxHealth = 20
 	universal_speak = FALSE
+	mob_sort_value = 12
 
 	mob_bump_flag = SIMPLE_ANIMAL
 	mob_swap_flags = MONKEY|SLIME|SIMPLE_ANIMAL
@@ -11,11 +12,12 @@
 
 	meat_type = /obj/item/chems/food/snacks/meat
 	meat_amount = 3
-	bone_material = MAT_BONE_GENERIC
+	bone_material = /decl/material/solid/bone
 	bone_amount = 5
-	skin_material = MAT_SKIN_GENERIC 
+	skin_material = /decl/material/solid/skin 
 	skin_amount = 5
 
+	var/gene_damage = 0 // Set to -1 to disable gene damage for the mob.
 	var/show_stat_health = 1	//does the percentage health show in the stat panel for the mob
 
 	var/icon_living = ""
@@ -47,9 +49,12 @@
 	var/cold_damage_per_tick = 2	//same as heat_damage_per_tick, only if the bodytemperature it's lower than minbodytemp
 	var/fire_alert = 0
 
-	//Atmos effect - Yes, you can make creatures that require phoron or co2 to survive. N2O is a trace gas and handled separately, hence why it isn't here. It'd be hard to add it. Hard and me don't mix (Yes, yes make all the dick jokes you want with that.) - Errorage
-	var/list/min_gas = list(MAT_OXYGEN = 5)
-	var/list/max_gas = list(MAT_PHORON = 1, MAT_CO2 = 5)
+	//Atmos effect - Yes, you can make creatures that require arbitrary gasses to survive. N2O is a trace gas and handled separately, hence why it isn't here. It'd be hard to add it. Hard and me don't mix (Yes, yes make all the dick jokes you want with that.) - Errorage
+	var/list/min_gas = list(/decl/material/gas/oxygen = 5)
+	var/list/max_gas = list(
+		/decl/material/gas/chlorine = 1, 
+		/decl/material/gas/carbon_dioxide = 5
+	)
 
 	var/unsuitable_atmos_damage = 2	//This damage is taken when atmos doesn't fit all the requirements above
 	var/speed = 0 //LETS SEE IF I CAN SET SPEEDS FOR SIMPLE MOBS WITHOUT DESTROYING EVERYTHING. Higher speed is slower, negative speed is faster
@@ -88,6 +93,8 @@
 	. = ..()
 	if(LAZYLEN(natural_armor))
 		set_extension(src, armor_type, natural_armor)
+	if(holder_type)
+		set_extension(src, /datum/extension/base_icon_state, icon_living || icon_state)
 
 /mob/living/simple_animal/Destroy()
 	if(istype(natural_weapon))
@@ -255,26 +262,27 @@
 	Proj.on_hit(src)
 	return 0
 
-/mob/living/simple_animal/attack_hand(mob/living/carbon/human/M)
+/mob/living/simple_animal/attack_hand(mob/user)
 	..()
 
-	switch(M.a_intent)
+	switch(user.a_intent)
 
 		if(I_HELP)
 			if (health > 0)
-				M.visible_message("<span class='notice'>[M] [response_help] \the [src].</span>")
-				M.update_personal_goal(/datum/goal/achievement/specific_object/pet, type)
+				user.visible_message(SPAN_NOTICE("\The [user] [response_help] \the [src]."))
+				user.update_personal_goal(/datum/goal/achievement/specific_object/pet, type)
 
 		if(I_DISARM)
-			M.visible_message("<span class='notice'>[M] [response_disarm] \the [src].</span>")
-			M.do_attack_animation(src)
+			user.visible_message(SPAN_NOTICE("\The [user] [response_disarm] \the [src]."))
+			user.do_attack_animation(src)
 			//TODO: Push the mob away or something
 
 		if(I_HURT)
 			var/dealt_damage = harm_intent_damage
 			var/harm_verb = response_harm
-			if(ishuman(M))
-				var/decl/natural_attack/attack = M.get_unarmed_attack(src)
+			if(ishuman(user))
+				var/mob/living/carbon/human/H = user
+				var/decl/natural_attack/attack = H.get_unarmed_attack(src)
 				if(istype(attack))
 					dealt_damage = attack.damage <= dealt_damage ? dealt_damage : attack.damage
 					harm_verb = pick(attack.attack_verb)
@@ -282,10 +290,8 @@
 						adjustBleedTicks(dealt_damage)
 
 			adjustBruteLoss(dealt_damage)
-			M.visible_message("<span class='warning'>[M] [harm_verb] \the [src]!</span>")
-			M.do_attack_animation(src)
-
-	return
+			user.visible_message(SPAN_DANGER("\The [user] [harm_verb] \the [src]!"))
+			user.do_attack_animation(src)
 
 /mob/living/simple_animal/attackby(var/obj/item/O, var/mob/user)
 	if(istype(O, /obj/item/stack/medical))
@@ -309,7 +315,7 @@
 			return
 
 	if(meat_type && (stat == DEAD) && meat_amount)
-		if(istype(O, /obj/item/material/knife/kitchen/cleaver))
+		if(istype(O, /obj/item/knife/kitchen/cleaver))
 			var/victim_turf = get_turf(src)
 			if(!locate(/obj/structure/table, victim_turf))
 				to_chat(user, SPAN_NOTICE("You need to place \the [src] on a table to butcher it."))
@@ -333,7 +339,7 @@
 		if(!O.force)
 			visible_message("<span class='notice'>[user] gently taps [src] with \the [O].</span>")
 		else
-			O.attack(src, user, user.zone_sel.selecting)
+			O.attack(src, user, user.zone_sel?.selecting || ran_zone())
 
 /mob/living/simple_animal/hit_with_weapon(obj/item/O, mob/living/user, var/effective_force, var/hit_zone)
 
@@ -382,21 +388,16 @@
 	walk_to(src,0)
 	return ..(gibbed,deathmessage,show_dead_message)
 
-/mob/living/simple_animal/ex_act(severity)
-	if(!blinded)
-		flash_eyes()
-
+/mob/living/simple_animal/explosion_act(severity)
+	..()
 	var/damage
-	switch (severity)
-		if (1)
+	switch(severity)
+		if(1)
 			damage = 500
-
-		if (2)
+		if(2)
 			damage = 120
-
 		if(3)
 			damage = 30
-
 	apply_damage(damage, BRUTE, damage_flags = DAM_EXPLODE)
 
 /mob/living/simple_animal/adjustBruteLoss(damage)
@@ -467,8 +468,7 @@
 				B.icon_state = pick("dir_splatter_1","dir_splatter_2")
 				B.basecolor = bleed_colour
 				var/scale = min(1, round(mob_size / MOB_SIZE_MEDIUM, 0.1))
-				var/matrix/M = new()
-				B.transform = M.Scale(scale)
+				B.set_scale(scale)
 				B.update_icon()
 
 /mob/living/simple_animal/handle_fire()
@@ -504,7 +504,7 @@
 	drip.update_icon()
 
 /mob/living/simple_animal/get_digestion_product()
-	return /decl/reagent/nutriment
+	return /decl/material/liquid/nutriment
 
 /mob/living/simple_animal/eyecheck()
 	switch(flash_vulnerability)
@@ -519,17 +519,29 @@
 
 /mob/living/simple_animal/proc/reflect_unarmed_damage(var/mob/living/carbon/human/attacker, var/damage_type, var/description)
 	if(attacker.a_intent == I_HURT)
-		var/hand_hurtie
-		if(attacker.hand)
-			hand_hurtie = BP_L_HAND
-		else
-			hand_hurtie = BP_R_HAND
-		attacker.apply_damage(rand(return_damage_min, return_damage_max), damage_type, hand_hurtie, used_weapon = description)
+		attacker.apply_damage(rand(return_damage_min, return_damage_max), damage_type, attacker.get_active_held_item_slot(), used_weapon = description)
 		if(rand(25))
 			to_chat(attacker, SPAN_WARNING("Your attack has no obvious effect on \the [src]'s [description]!"))
-
 
 /mob/living/simple_animal/proc/get_natural_weapon()
 	if(ispath(natural_weapon))
 		natural_weapon = new natural_weapon(src)
 	return natural_weapon
+
+/mob/living/simple_animal/getCloneLoss()
+	. = max(0, gene_damage)
+
+/mob/living/simple_animal/adjustCloneLoss(var/amount)
+	setCloneLoss(gene_damage + amount)
+
+/mob/living/simple_animal/setCloneLoss(amount)
+	if(gene_damage >= 0)
+		gene_damage = Clamp(amount, 0, maxHealth)
+		if(gene_damage >= maxHealth)
+			death()
+
+/mob/living/simple_animal/get_admin_job_string()
+	return "Animal"
+
+/mob/living/simple_animal/get_telecomms_race_info()
+	return list("Domestic Animal", FALSE)

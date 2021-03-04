@@ -39,7 +39,7 @@
 	*** Override, what is it? ***
 
 	The purpose of enabling the override is to prevent the docking program from automatically doing things with the docking port when docking or undocking.
-	Maybe the shuttle is full of plamsa/phoron for some reason, and you don't want the door to automatically open, or the airlock to cycle.
+	Maybe the shuttle is full of poison for some reason, and you don't want the door to automatically open, or the airlock to cycle.
 	This means that the prepare_for_docking/undocking and finish_docking/undocking procs don't get called.
 
 	The docking controller will still check the state of the docking port, and thus prevent the shuttle from launching unless they force the launch (handling forced
@@ -68,7 +68,7 @@
 	. = ..()
 	if(id_tag)
 		if(SSshuttle.docking_registry[id_tag])
-			crash_with("Docking controller tag [id_tag] had multiple associated programs.")
+			PRINT_STACK_TRACE("Docking controller tag [id_tag] had multiple associated programs.")
 		SSshuttle.docking_registry[id_tag] = src
 
 /datum/computer/file/embedded_program/docking/Destroy()

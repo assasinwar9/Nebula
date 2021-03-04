@@ -33,6 +33,14 @@
 			client.screen += screen
 	return screen
 
+/mob/proc/show_screen(var/screen, var/animated)
+	set waitfor = FALSE
+	animate(screen, alpha = 0, time = animated)
+	sleep(animated)
+	if(screen && client)
+		client.screen -= screen
+		qdel(screen)
+
 /mob/proc/clear_fullscreen(category, animated = 10)
 	var/obj/screen/fullscreen/screen = screens[category]
 	if(!screen)
@@ -41,12 +49,7 @@
 	screens -= category
 
 	if(animated)
-		spawn(0)
-			animate(screen, alpha = 0, time = animated)
-			sleep(animated)
-			if(client)
-				client.screen -= screen
-			qdel(screen)
+		show_screen(screen, animated)
 	else
 		if(client)
 			client.screen -= screen
@@ -130,6 +133,8 @@
 	icon = 'icons/mob/screen1.dmi'
 	screen_loc = ui_entire_screen
 	icon_state = "druggy"
+	alpha = 127
+	blend_mode = BLEND_MULTIPLY
 
 /obj/screen/fullscreen/noise
 	icon = 'icons/effects/static.dmi'
@@ -164,3 +169,10 @@
 /obj/screen/fullscreen/pain
 	icon_state = "brutedamageoverlay6"
 	alpha = 0
+
+/obj/screen/fullscreen/blueprints
+	icon = 'icons/effects/blueprints.dmi'
+	icon_state = "base"
+	screen_loc = ui_entire_screen
+	alpha = 100
+	layer = FULLSCREEN_LAYER

@@ -14,7 +14,7 @@
 	..()
 
 /decl/communication_channel/dsay/can_communicate(var/client/communicator, var/message, var/speech_method_type)
-	var/decl/dsay_communication/speech_method = decls_repository.get_decl(speech_method_type)
+	var/decl/dsay_communication/speech_method = GET_DECL(speech_method_type)
 	switch(speech_method.can_communicate(communicator, message))
 		if(DSAY_CAN_COMMUNICATE)
 			return TRUE
@@ -22,7 +22,7 @@
 			return ..()
 
 /decl/communication_channel/dsay/do_communicate(var/client/communicator, var/message, var/speech_method_type)
-	var/decl/dsay_communication/speech_method = decls_repository.get_decl(speech_method_type)
+	var/decl/dsay_communication/speech_method = GET_DECL(speech_method_type)
 
 	speech_method.adjust_channel(src)
 
@@ -74,12 +74,13 @@
 
 	var/lname
 	var/mob/observer/ghost/DM
+	var/anon_say_pref = (C.get_preference_value(/datum/client_preference/anon_say) == GLOB.PREF_YES)
 	if(isghost(C.mob))
 		DM = C.mob
 	if(M.client.holder) 							// What admins see
-		lname = "[keyname][(DM && DM.anonsay) ? "*" : (DM ? "" : "^")] ([name])"
+		lname = "[keyname][(DM && anon_say_pref) ? "*" : (DM ? "" : "^")] ([name])"
 	else
-		if(DM && DM.anonsay)						// If the person is actually observer they have the option to be anonymous
+		if(DM && anon_say_pref)						// If the person is actually observer they have the option to be anonymous
 			lname = "Ghost of [name]"
 		else if(DM)									// Non-anons
 			lname = "[keyname] ([name])"

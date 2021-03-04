@@ -84,7 +84,7 @@ SUBSYSTEM_DEF(unit_tests)
 			if(test.async)
 				async_tests += test
 			else
-				test.conclude_test()
+				test.teardown_test()
 		total_unit_tests++
 		if (MC_TICK_CHECK)
 			return
@@ -105,7 +105,7 @@ SUBSYSTEM_DEF(unit_tests)
 		async.len--
 		if(check_unit_test(test, end_unit_tests))
 			async_tests -= test
-			test.conclude_test()
+			test.teardown_test()
 		if (MC_TICK_CHECK)
 			return
 	if (!async_tests.len)
@@ -132,6 +132,6 @@ SUBSYSTEM_DEF(unit_tests)
 
 		if (6)	// Finalization.
 			unit_test_final_message()
-			log_unit_test("Caught [GLOB.total_runtimes] Runtime\s.")
+			log_unit_test("Caught [global.total_runtimes] Runtime\s.")
 			del world
 

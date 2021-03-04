@@ -38,9 +38,9 @@
 
 /decl/grab/Initialize()
 	if(ispath(upgrab, /decl/grab))
-		upgrab = decls_repository.get_decl(upgrab)
+		upgrab = GET_DECL(upgrab)
 	if(ispath(downgrab, /decl/grab))
-		downgrab = decls_repository.get_decl(downgrab)
+		downgrab = GET_DECL(downgrab)
 	. = ..()
 
 /decl/grab/proc/string_process(var/obj/item/grab/G, var/to_write, var/obj/item/used_item)
@@ -95,9 +95,8 @@
 			animate(G.affecting, pixel_x = initial(G.affecting.pixel_x), pixel_y = initial(G.affecting.pixel_y), 4, 1)
 		qdel(G)
 		// check if we're grabbing with our inactive hand
-		G = thrower.get_inactive_hand()
-		if(istype(G))
-			qdel(G)
+		for(var/obj/item/grab/grab in thrower.get_inactive_held_items())
+			qdel(grab)
 
 /decl/grab/proc/hit_with_grab(var/obj/item/grab/G)
 	if(downgrade_on_action)

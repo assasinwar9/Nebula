@@ -11,7 +11,7 @@
 	program_menu_icon = "flag"
 	nanomodule_path = /datum/nano_module/program/comm
 	extended_desc = "Used to command and control. Can relay long-range communications. This program can not be run on tablet computers."
-	required_access = access_bridge
+	required_access = list(access_bridge)
 	requires_network = 1
 	size = 12
 	usage_flags = PROGRAM_CONSOLE | PROGRAM_LAPTOP
@@ -66,7 +66,7 @@
 	data["authenticated"] = is_autenthicated(user)
 	data["boss_short"] = GLOB.using_map.boss_short
 
-	var/decl/security_state/security_state = decls_repository.get_decl(GLOB.using_map.security_state)
+	var/decl/security_state/security_state = GET_DECL(GLOB.using_map.security_state)
 	data["current_security_level_ref"] = any2ref(security_state.current_security_level)
 	data["current_security_level_title"] = security_state.current_security_level.name
 
@@ -97,6 +97,7 @@
 			option["option_target"] = EO.option_target
 			option["needs_syscontrol"] = EO.needs_syscontrol
 			option["silicon_allowed"] = EO.silicon_allowed
+			option["requires_shunt"] = EO.requires_shunt
 			processed_evac_options[++processed_evac_options.len] = option
 	data["evac_options"] = processed_evac_options
 
@@ -109,8 +110,30 @@
 
 /datum/nano_module/program/comm/proc/is_autenthicated(var/mob/user)
 	if(program)
-		return program.can_run(user)
+		return program.can_run(user, program.computer.get_network())
 	return 1
+
+/datum/nano_module/program/comm/proc/get_shunt()
+	if(isnull(program?.computer))
+		return FALSE
+
+	var/obj/comp = program.computer.get_physical_host()
+
+	if(isnull(comp))
+		return FALSE
+
+	var/obj/effect/overmap/visitable/ship/sector = comp.get_owning_overmap_object()
+
+	if(!istype(sector))
+		return
+
+	for(var/obj/machinery/ftl_shunt/core/C in SSmachines.machinery)
+		if(C.z in sector.map_z)
+			if(C.get_status() != 2) //magic number because defines are lower than this file.
+				return TRUE
+
+	return FALSE
+
 
 /datum/nano_module/program/comm/proc/obtain_message_listener()
 	if(program)
@@ -141,7 +164,7 @@
 					to_chat(usr, "Please allow at least one minute to pass between announcements")
 					return TRUE
 				var/input = input(usr, "Please write a message to announce to the [station_name()].", "Priority Announcement") as null|message
-				if(!input || !can_still_topic())
+				if(!input || !can_still_topic() || filter_block_message(usr, input))
 					return 1
 				var/affected_zlevels = GetConnectedZlevels(get_host_z())
 				crew_announcement.Announce(input, zlevels = affected_zlevels)
@@ -158,7 +181,7 @@
 							SSnano.update_uis(src)
 							return
 						var/input = sanitize(input(usr, "Please choose a message to transmit to \[ABNORMAL ROUTING CORDINATES\] via quantum entanglement.  Please be aware that this process is very expensive, and abuse will lead to... termination. Transmission does not guarantee a response. There is a 30 second delay before you may send another message, be clear, full and concise.", "To abort, send an empty message.", "") as null|text)
-						if(!input || !can_still_topic())
+						if(!input || !can_still_topic() || filter_block_message(usr, input))
 							return 1
 						Syndicate_announce(input, usr)
 						to_chat(usr, "<span class='notice'>Message transmitted.</span>")
@@ -173,10 +196,10 @@
 						SSnano.update_uis(src)
 						return
 					if(!is_relay_online())//Contact Centcom has a check, Syndie doesn't to allow for Traitor funs.
-						to_chat(usr, "<span class='warning'>No Emergency Bluespace Relay detected. Unable to transmit message.</span>")
+						to_chat(usr, "<span class='warning'>No emergency communication relay detected. Unable to transmit message.</span>")
 						return 1
 					var/input = sanitize(input("Please choose a message to transmit to [GLOB.using_map.boss_short] via quantum entanglement.  Please be aware that this process is very expensive, and abuse will lead to... termination.  Transmission does not guarantee a response. There is a 30 second delay before you may send another message, be clear, full and concise.", "To abort, send an empty message.", "") as null|text)
-					if(!input || !can_still_topic())
+					if(!input || !can_still_topic() || filter_block_message(usr, input))
 						return 1
 					Centcomm_announce(input, usr)
 					to_chat(usr, "<span class='notice'>Message transmitted.</span>")
@@ -193,6 +216,8 @@
 				if (!selected_evac_option.silicon_allowed && issilicon(user))
 					return
 				if (selected_evac_option.needs_syscontrol && !ntn_cont)
+					return
+				if (selected_evac_option.requires_shunt && !get_shunt())
 					return
 				var/confirm = alert("Are you sure you want to [selected_evac_option.option_desc]?", name, "No", "Yes")
 				if (confirm == "Yes" && can_still_topic())
@@ -218,7 +243,7 @@
 		if("setalert")
 			. = 1
 			if(is_autenthicated(user) && !issilicon(usr) && ntn_cont && ntn_comm)
-				var/decl/security_state/security_state = decls_repository.get_decl(GLOB.using_map.security_state)
+				var/decl/security_state/security_state = GET_DECL(GLOB.using_map.security_state)
 				var/decl/security_level/target_level = locate(href_list["target"]) in security_state.comm_console_security_levels
 				if(target_level && security_state.can_switch_to(target_level))
 					var/confirm = alert("Are you sure you want to change the alert level to [target_level.name]?", name, "No", "Yes")
@@ -325,7 +350,7 @@ var/last_message_id = 0
 
 
 /proc/is_relay_online()
-	for(var/obj/machinery/bluespacerelay/M in SSmachines.machinery)
+	for(var/obj/machinery/commsrelay/M in SSmachines.machinery)
 		if(M.stat == 0)
 			return 1
 	return 0
@@ -338,7 +363,7 @@ var/last_message_id = 0
 		emergency = 1
 
 	if(!GLOB.universe.OnShuttleCall(usr))
-		to_chat(user, "<span class='notice'>Cannot establish a bluespace connection.</span>")
+		to_chat(user, "<span class='notice'>Cannot establish a connection.</span>")
 		return
 
 	if(SSevac.evacuation_controller.deny)

@@ -14,7 +14,7 @@
 /decl/crafting_stage/New()
 	var/stages = list()
 	for(var/nid in next_stages)
-		stages += decls_repository.get_decl(nid)
+		stages += GET_DECL(nid)
 	next_stages = stages
 	..()
 
@@ -63,7 +63,7 @@
 	completion_trigger_type = /obj/item/stack/material
 	stack_consume_amount = 5
 	consume_completion_trigger = FALSE
-	var/stack_material = MAT_STEEL
+	var/stack_material = /decl/material/solid/metal/steel
 
 /decl/crafting_stage/material/consume(var/mob/user, var/obj/item/thing, var/obj/item/target)
 	var/obj/item/stack/material/M = thing

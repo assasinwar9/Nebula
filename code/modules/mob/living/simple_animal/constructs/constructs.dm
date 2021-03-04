@@ -26,6 +26,7 @@
 	mob_swap_flags = HUMAN|SIMPLE_ANIMAL|SLIME|MONKEY
 	mob_push_flags = ALLMOBS
 	bleed_colour = "#331111"
+	gene_damage = -1
 
 	meat_type =     null
 	meat_amount =   0
@@ -73,7 +74,7 @@
 
 /mob/living/simple_animal/construct/examine(mob/user)
 	. = ..(user)
-	var/msg = "<span cass='info'>*---------*\nThis is \icon[src] \a <EM>[src]</EM>!\n"
+	var/msg = "<span cass='info'>*---------*\nThis is [html_icon(src)] \a <EM>[src]</EM>!\n"
 	if (src.health < src.maxHealth)
 		msg += "<span class='warning'>"
 		if (src.health >= src.maxHealth/2)

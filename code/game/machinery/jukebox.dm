@@ -1,19 +1,3 @@
-//This file was auto-corrected by findeclaration.exe on 25.5.2012 20:42:32
-
-/datum/track
-	var/title
-	var/track
-
-/datum/track/New(var/title, var/track)
-	src.title = title
-	src.track = track
-
-datum/track/proc/GetTrack()
-	if(ispath(track, /music_track))
-		var/music_track/music_track = decls_repository.get_decl(track)
-		return music_track.song
-	return track // Allows admins to continue their adminbus simply by overriding the track var
-
 /obj/machinery/media/jukebox
 	name = "mediatronic jukebox"
 	desc = "An immense, standalone touchscreen on a swiveling base, equipped with phased array speakers. Embossed on one corner of the ultrathin bezel is the brand name, 'Leitmotif Enterprise Edition'."
@@ -200,7 +184,7 @@ datum/track/proc/GetTrack()
 		return
 
 	// Jukeboxes cheat massively and actually don't share id. This is only done because it's music rather than ambient noise.
-	sound_token = GLOB.sound_player.PlayLoopingSound(src, sound_id, current_track.GetTrack(), volume = volume, range = 7, falloff = 3, prefer_mute = TRUE, preference = /datum/client_preference/play_game_music)
+	sound_token = GLOB.sound_player.PlayLoopingSound(src, sound_id, current_track.GetTrack(), volume = volume, range = 7, falloff = 3, prefer_mute = TRUE, preference = /datum/client_preference/play_game_music, streaming = TRUE)
 
 	playing = 1
 	update_use_power(POWER_USE_ACTIVE)

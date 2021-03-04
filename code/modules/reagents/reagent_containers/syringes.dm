@@ -11,7 +11,7 @@
 	icon = 'icons/obj/syringe.dmi'
 	item_state = "rg0"
 	icon_state = "rg"
-	material = MAT_GLASS
+	material = /decl/material/solid/glass
 	amount_per_transfer_from_this = 5
 	possible_transfer_amounts = @"[1,2,5]"
 	volume = 15
@@ -127,9 +127,6 @@
 			to_chat(user, "<span class='notice'>There is already a blood sample in this syringe.</span>")
 			return
 		if(istype(target, /mob/living/carbon))
-			if(istype(target, /mob/living/carbon/slime))
-				to_chat(user, "<span class='warning'>You are unable to locate any blood.</span>")
-				return
 			var/amount = REAGENTS_FREE_SPACE(reagents)
 			var/mob/living/carbon/T = target
 			if(!T.dna)
@@ -138,7 +135,7 @@
 					CRASH("[T] \[[T.type]\] was missing their dna datum!")
 				return
 
-			var/allow = T.can_inject(user, check_zone(user.zone_sel.selecting))
+			var/allow = T.can_inject(user, check_zone(user.zone_sel.selecting, T))
 			if(!allow)
 				return
 
@@ -157,7 +154,7 @@
 
 			if(prob(user.skill_fail_chance(SKILL_MEDICAL, 60, SKILL_BASIC)))
 				to_chat(user, "<span class='warning'>You miss the vein!</span>")
-				var/target_zone = check_zone(user.zone_sel.selecting)
+				var/target_zone = check_zone(user.zone_sel.selecting, T)
 				T.apply_damage(3, BRUTE, target_zone, damage_flags=DAM_SHARP)
 				return
 
@@ -175,7 +172,7 @@
 			to_chat(user, "<span class='notice'>[target] is empty.</span>")
 			return
 
-		if(!ATOM_IS_OPEN_CONTAINER(target) && !istype(target, /obj/structure/reagent_dispensers) && !istype(target, /obj/item/slime_extract))
+		if(!ATOM_IS_OPEN_CONTAINER(target) && !istype(target, /obj/structure/reagent_dispensers))
 			to_chat(user, "<span class='notice'>You cannot directly remove reagents from this object.</span>")
 			return
 
@@ -198,7 +195,7 @@
 	if(istype(target, /obj/item/implantcase/chem))
 		return
 
-	if(!ATOM_IS_OPEN_CONTAINER(target) && !ismob(target) && !istype(target, /obj/item/chems/food) && !istype(target, /obj/item/slime_extract) && !istype(target, /obj/item/clothing/mask/smokable/cigarette) && !istype(target, /obj/item/storage/fancy/cigarettes))
+	if(!ATOM_IS_OPEN_CONTAINER(target) && !ismob(target) && !istype(target, /obj/item/chems/food) && !istype(target, /obj/item/clothing/mask/smokable/cigarette) && !istype(target, /obj/item/storage/fancy/cigarettes))
 		to_chat(user, "<span class='notice'>You cannot directly fill this object.</span>")
 		return
 	if(!REAGENTS_FREE_SPACE(target.reagents))
@@ -227,7 +224,7 @@
 	if(!trackTarget)
 		trackTarget = target
 
-	var/allow = target.can_inject(user, check_zone(user.zone_sel.selecting))
+	var/allow = target.can_inject(user, check_zone(user.zone_sel.selecting, target))
 	if(!allow)
 		return
 
@@ -270,7 +267,7 @@
 
 		var/mob/living/carbon/human/H = target
 
-		var/target_zone = check_zone(user.zone_sel.selecting)
+		var/target_zone = check_zone(user.zone_sel.selecting, H)
 		var/obj/item/organ/external/affecting = H.get_organ(target_zone)
 
 		if (!affecting || affecting.is_stump())
@@ -333,7 +330,7 @@
 
 /obj/item/chems/syringe/ld50_syringe/Initialize()
 	. = ..()
-	reagents.add_reagent(/decl/reagent/toxin/heartstopper, 60)
+	reagents.add_reagent(/decl/material/liquid/heartstopper, 60)
 	mode = SYRINGE_INJECT
 	update_icon()
 
@@ -341,13 +338,13 @@
 /// Syringes. END
 ////////////////////////////////////////////////////////////////////////////////
 
-/obj/item/chems/syringe/adrenaline
-	name = "Syringe (adrenaline)"
-	desc = "Contains adrenaline - used to stabilize patients."
+/obj/item/chems/syringe/stabilizer
+	name = "Syringe (stabilizer)"
+	desc = "Contains stabilizer - for patients in danger of brain damage."
 
-/obj/item/chems/syringe/adrenaline/Initialize()
+/obj/item/chems/syringe/stabilizer/Initialize()
 	. = ..()
-	reagents.add_reagent(/decl/reagent/adrenaline, 15)
+	reagents.add_reagent(/decl/material/liquid/stabilizer, 15)
 	mode = SYRINGE_INJECT
 	update_icon()
 
@@ -357,7 +354,7 @@
 
 /obj/item/chems/syringe/antitoxin/Initialize()
 	. = ..()
-	reagents.add_reagent(/decl/reagent/antitoxins, 15)
+	reagents.add_reagent(/decl/material/liquid/antitoxins, 15)
 	mode = SYRINGE_INJECT
 	update_icon()
 
@@ -367,7 +364,7 @@
 
 /obj/item/chems/syringe/antibiotic/Initialize()
 	. = ..()
-	reagents.add_reagent(/decl/reagent/antibiotics, 15)
+	reagents.add_reagent(/decl/material/liquid/antibiotics, 15)
 	mode = SYRINGE_INJECT
 	update_icon()
 
@@ -377,9 +374,9 @@
 
 /obj/item/chems/syringe/drugs/Initialize()
 	. = ..()
-	reagents.add_reagent(/decl/reagent/psychoactives, 5)
-	reagents.add_reagent(/decl/reagent/hallucinogenics, 5)
-	reagents.add_reagent(/decl/reagent/presyncopics, 5)
+	reagents.add_reagent(/decl/material/liquid/psychoactives, 5)
+	reagents.add_reagent(/decl/material/liquid/hallucinogenics, 5)
+	reagents.add_reagent(/decl/material/liquid/presyncopics, 5)
 	mode = SYRINGE_INJECT
 	update_icon()
 
@@ -389,22 +386,22 @@
 
 /obj/item/chems/syringe/steroid/Initialize()
 	. = ..()
-	reagents.add_reagent(/decl/reagent/adrenaline, 5)
-	reagents.add_reagent(/decl/reagent/amphetamines, 10)
+	reagents.add_reagent(/decl/material/liquid/adrenaline, 5)
+	reagents.add_reagent(/decl/material/liquid/amphetamines, 10)
 
 
 // TG ports
 
-/obj/item/chems/syringe/bluespace
-	name = "bluespace syringe"
+/obj/item/chems/syringe/advanced
+	name = "advanced syringe"
 	desc = "An advanced syringe that can hold 60 units of chemicals."
 	amount_per_transfer_from_this = 20
 	volume = 60
 	icon_state = "bs"
-	material = MAT_GLASS
+	material = /decl/material/solid/glass
 	matter = list(
-		MAT_PHORON = MATTER_AMOUNT_REINFORCEMENT,
-		MAT_DIAMOND = MATTER_AMOUNT_TRACE
+		/decl/material/solid/metal/uranium = MATTER_AMOUNT_TRACE,
+		/decl/material/solid/gemstone/diamond = MATTER_AMOUNT_TRACE
 	)
 
 /obj/item/chems/syringe/noreact
@@ -413,8 +410,8 @@
 	volume = 20
 	atom_flags = ATOM_FLAG_NO_TEMP_CHANGE | ATOM_FLAG_NO_REACT
 	icon_state = "cs"
-	material = MAT_GLASS
+	material = /decl/material/solid/glass
 	matter = list(
-		MAT_GOLD = MATTER_AMOUNT_REINFORCEMENT,
-		MAT_PLASTIC = MATTER_AMOUNT_TRACE
+		/decl/material/solid/metal/gold = MATTER_AMOUNT_REINFORCEMENT,
+		/decl/material/solid/plastic = MATTER_AMOUNT_TRACE
 	)

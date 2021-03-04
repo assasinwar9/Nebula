@@ -22,17 +22,17 @@
 		/obj/item/chems/spray/cleaner/deodorant,
 		/obj/item/towel/random)
 
-/obj/item/storage/mirror/MouseDrop(obj/over_object)
-	if(!(. = ..()))
-		return
-	flick("mirror_open",src)
+/obj/item/storage/mirror/handle_mouse_drop(atom/over, mob/user)
+	. = ..()
+	if(.)
+		flick("mirror_open",src)
 
-/obj/item/storage/mirror/attack_hand(var/mob/living/carbon/human/user)
+/obj/item/storage/mirror/attack_hand(mob/user)
 	use_mirror(user)
 
 /obj/item/storage/mirror/proc/use_mirror(var/mob/living/carbon/human/user)
 	if(shattered)
-		to_chat(user, "<spawn class='notice'>You enter the key combination for the style you want on the panel, but the nanomachines inside \the [src] refuse to come out.")
+		to_chat(user, SPAN_WARNING("You enter the key combination for the style you want on the panel, but the nanomachines inside \the [src] refuse to come out."))
 		return
 	open_mirror_ui(user, ui_users, "SalonPro Nano-Mirror&trade;", mirror = src)
 

@@ -90,9 +90,11 @@
 
 	return
 
-/obj/structure/closet/statue/ex_act(severity)
+/obj/structure/closet/statue/explosion_act(severity)
 	for(var/mob/M in src)
-		M.ex_act(severity)
+		M.explosion_act(severity)
+	..()
+	if(!QDELETED(src))
 		health -= 60 / severity
 		check_health()
 
@@ -102,8 +104,8 @@
 	visible_message("<span class='danger'>[user] strikes [src] with [I].</span>")
 	check_health()
 
-/obj/structure/closet/statue/MouseDrop_T()
-	return
+/obj/structure/closet/statue/receive_mouse_drop(atom/dropping, var/mob/user)
+	return TRUE
 
 /obj/structure/closet/statue/relaymove()
 	return

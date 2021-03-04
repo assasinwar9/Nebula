@@ -101,22 +101,6 @@
 			paiController.pai_candidates.Remove(candidate)
 	SSstatistics.add_field_details("admin_verb","MPAI") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
-/client/proc/cmd_admin_slimeize(var/mob/M in SSmobs.mob_list)
-	set category = "Fun"
-	set name = "Make slime"
-
-	if(GAME_STATE < RUNLEVEL_GAME)
-		alert("Wait until the game starts")
-		return
-	if(ishuman(M))
-		log_admin("[key_name(src)] has slimeized [M.key].")
-		spawn(10)
-			M:slimeize()
-			SSstatistics.add_field_details("admin_verb","MKMET") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-		log_and_message_admins("made [key_name(M)] into a slime.")
-	else
-		alert("Invalid mob")
-
 //TODO: merge the vievars version into this or something maybe mayhaps
 /client/proc/cmd_debug_del_all()
 	set category = "Debug"
@@ -170,7 +154,7 @@
 			id.registered_name = H.real_name
 			id.assignment = "Captain"
 			id.SetName("[id.registered_name]'s ID Card ([id.assignment])")
-			H.equip_to_slot_or_del(id, slot_wear_id)
+			H.equip_to_slot_or_del(id, slot_wear_id_str)
 			H.update_inv_wear_id()
 	else
 		alert("Invalid mob")
@@ -228,7 +212,7 @@
 		if(!(A.type in areas_with_air_alarm))
 			areas_with_air_alarm.Add(A.type)
 
-	for(var/obj/machinery/requests_console/RC in world)
+	for(var/obj/machinery/network/requests_console/RC in world)
 		var/area/A = get_area(RC)
 		if(!(A.type in areas_with_RC))
 			areas_with_RC.Add(A.type)
@@ -355,13 +339,10 @@
 
 	for(var/obj/machinery/power/rad_collector/Rad in world)
 		if(Rad.anchored)
-			if(!Rad.P)
-				var/obj/item/tank/phoron/Phoron = new/obj/item/tank/phoron(Rad)
-				Phoron.air_contents.gas[MAT_PHORON] = 70
+			if(!Rad.loaded_tank)
+				Rad.loaded_tank = new /obj/item/tank/hydrogen(Rad)
+				Rad.loaded_tank.air_contents.gas[/decl/material/gas/hydrogen] = 70
 				Rad.drainratio = 0
-				Rad.P = Phoron
-				Phoron.forceMove(Rad)
-
 			if(!Rad.active)
 				Rad.toggle_power()
 
@@ -490,5 +471,15 @@
 	var/material = input("Select material to spawn") as null|anything in SSmaterials.materials_by_name
 	if(!material)
 		return
-	var/material/M = SSmaterials.get_material_datum(material)
+	var/decl/material/M = GET_DECL(material)
 	new M.stack_type(get_turf(mob), 50, M)
+
+/client/proc/force_ghost_trap_trigger()
+	set category = "Debug"
+	set name = "Force Ghost Trap Trigger"
+	if(!check_rights(R_DEBUG)) return
+	var/decl/ghosttrap/trap = input("Select a ghost trap.", "Force Ghost Trap Trigger") as null|anything in typesof(/decl/ghosttrap)
+	if(!trap)
+		return
+	trap = GET_DECL(trap)
+	trap.forced(mob)

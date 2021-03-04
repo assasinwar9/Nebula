@@ -22,9 +22,6 @@ mob/proc/airflow_stun()
 mob/living/silicon/airflow_stun()
 	return
 
-mob/living/carbon/slime/airflow_stun()
-	return
-
 mob/living/carbon/human/airflow_stun()
 	if(!slip_chance())
 		to_chat(src, "<span class='notice'>Air suddenly rushes past you!</span>")
@@ -80,7 +77,7 @@ obj/check_airflow_movable(n)
 		return 0
 	if(buckled)
 		return 0
-	var/obj/item/shoes = get_equipped_item(slot_shoes)
+	var/obj/item/shoes = get_equipped_item(slot_shoes_str)
 	if(istype(shoes) && (shoes.item_flags & ITEM_FLAG_NOSLIP))
 		return 0
 	return 1

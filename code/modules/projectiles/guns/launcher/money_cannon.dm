@@ -1,11 +1,10 @@
 /obj/item/gun/launcher/money
 	name = "money cannon"
 	desc = "A blocky, plastic novelty launcher that claims to be able to shoot money at considerable velocities."
-	on_mob_icon = 'icons/obj/guns/launcher/money.dmi'
 	icon = 'icons/obj/guns/launcher/money.dmi'
-	icon_state = "world"
+	icon_state = ICON_STATE_WORLD
 	origin_tech = "{'combat':1,'materials':1}"
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_LOWER_BODY
 	w_class = ITEM_SIZE_SMALL
 	release_force = 80
 	fire_sound_text = "a whoosh and a crisp, papery rustle"
@@ -40,7 +39,7 @@
 		vomit_onto.visible_message("<span class='danger'>\The [vomit_onto] blasts themselves full in the face with \the [src]!</span>")
 		playsound(T, "sound/weapons/gunshot/money_launcher_jackpot.ogg", 100, 1)
 	else
-		var/decl/currency/cur = decls_repository.get_decl(GLOB.using_map.default_currency)
+		var/decl/currency/cur = GET_DECL(GLOB.using_map.default_currency)
 		vomit_onto.visible_message("<span class='danger'>\The [vomit_onto] ejects a few [cur.name] into their face.</span>")
 		playsound(T, 'sound/weapons/gunshot/money_launcher.ogg', 100, 1)
 
@@ -65,7 +64,7 @@
 	var/obj/item/cash/bling = new
 	bling.adjust_worth(receptacle_value)
 	user.put_in_hands(bling)
-	var/decl/currency/cur = decls_repository.get_decl(GLOB.using_map.default_currency)
+	var/decl/currency/cur = GET_DECL(GLOB.using_map.default_currency)
 	to_chat(user, "<span class='notice'>You eject [receptacle_value] [cur.name_singular] from [src]'s receptacle.</span>")
 	receptacle_value = 0
 
@@ -100,7 +99,7 @@
 	return bling
 
 /obj/item/gun/launcher/money/attack_self(mob/user)
-	var/decl/currency/cur = decls_repository.get_decl(GLOB.using_map.default_currency)
+	var/decl/currency/cur = GET_DECL(GLOB.using_map.default_currency)
 	var/disp_amount = min(input(user, "How many [cur.name_singular] do you want to dispense at a time? (0 to [src.receptacle_value])", "Money Cannon Settings", 20) as num, receptacle_value)
 	if (disp_amount < 1)
 		to_chat(user, "<span class='warning'>You have to dispense at least one [cur.name_singular] at a time!</span>")
@@ -109,7 +108,7 @@
 	to_chat(user, "<span class='notice'>You set [src] to dispense [dispensing] [cur.name_singular] at a time.</span>")
 
 /obj/item/gun/launcher/money/attack_hand(mob/user)
-	if(user.get_inactive_hand() == src)
+	if(user.is_holding_offhand(src))
 		unload_receptacle(user)
 	else
 		return ..()
@@ -121,7 +120,7 @@
 			to_chat(user, "<span class='warning'>You can't seem to get \the [bling] to slide into the receptacle.</span>")
 			return
 
-		var/decl/currency/cur = decls_repository.get_decl(bling.currency)
+		var/decl/currency/cur = GET_DECL(bling.currency)
 		if(bling.currency != GLOB.using_map.default_currency)
 			to_chat(user, SPAN_WARNING("Due to local legislation and budget cuts, \the [src] will only accept [cur.name]."))
 			return
@@ -135,7 +134,7 @@
 
 /obj/item/gun/launcher/money/examine(mob/user)
 	. = ..(user)
-	var/decl/currency/cur = decls_repository.get_decl(GLOB.using_map.default_currency)
+	var/decl/currency/cur = GET_DECL(GLOB.using_map.default_currency)
 	to_chat(user, "It is configured to dispense [dispensing] [cur.name_singular] at a time.")
 
 	if(receptacle_value >= 1)

@@ -95,11 +95,11 @@
 /mob/living/silicon/emp_act(severity)
 	switch(severity)
 		if(1)
-			src.take_organ_damage(0,16,emp=1)
+			src.take_organ_damage(0, 16, bypass_armour = TRUE)
 			if(prob(50)) Stun(rand(5,10))
 			else confused = (min(confused + 2, 40))
 		if(2)
-			src.take_organ_damage(0,7,emp=1)
+			src.take_organ_damage(0, 7, bypass_armour = TRUE)
 			confused = (min(confused + 2, 30))
 	flash_eyes(affect_silicon = 1)
 	to_chat(src, "<span class='danger'><B>*BZZZT*</B></span>")
@@ -194,7 +194,7 @@
 /mob/living/silicon/add_language(var/language, var/can_speak=1)
 	if(!ispath(language, /decl/language))
 		return
-	var/decl/language/added_language = decls_repository.get_decl(language)
+	var/decl/language/added_language = GET_DECL(language)
 	if(!added_language)
 		return
 
@@ -206,7 +206,7 @@
 /mob/living/silicon/remove_language(var/rem_language)
 	if(!ispath(rem_language, /decl/language))
 		return
-	var/decl/language/removed_language = decls_repository.get_decl(rem_language)
+	var/decl/language/removed_language = GET_DECL(rem_language)
 	if(!removed_language)
 		return
 
@@ -221,7 +221,7 @@
 	var/dat = "<b><font size = 5>Known Languages</font></b><br/><br/>"
 
 	if(default_language)
-		var/decl/language/lang = decls_repository.get_decl(default_language)
+		var/decl/language/lang = GET_DECL(default_language)
 		dat += "Current default language: [lang.name] - <a href='byond://?src=\ref[src];default_lang=reset'>reset</a><br/><br/>"
 
 	for(var/decl/language/L in languages)
@@ -268,22 +268,19 @@
 /mob/living/silicon/binarycheck()
 	return 1
 
-/mob/living/silicon/ex_act(severity)
-	if(!blinded)
-		flash_eyes()
-
+/mob/living/silicon/explosion_act(severity)
+	..()
 	var/brute
 	var/burn
 	switch(severity)
-		if(1.0)
+		if(1)
 			brute = 400
 			burn = 100
-		if(2.0)
+		if(2)
 			brute = 60
 			burn = 60
-		if(3.0)
+		if(3)
 			brute = 30
-
 	apply_damage(brute, BRUTE, damage_flags = DAM_EXPLODE)
 	apply_damage(burn, BURN, damage_flags = DAM_EXPLODE)
 
@@ -349,7 +346,8 @@
 
 
 /mob/living/silicon/proc/is_traitor()
-	return mind && (mind in GLOB.traitors.current_antagonists)
+	var/decl/special_role/traitors = GET_DECL(/decl/special_role/traitor)
+	return mind && (mind in traitors.current_antagonists)
 
 /mob/living/silicon/adjustEarDamage()
 	return
@@ -369,7 +367,7 @@
 			mind.assigned_job.clear_slot()
 		if(mind.objectives.len)
 			qdel(mind.objectives)
-			mind.special_role = null
+			mind.assigned_special_role = null
 		clear_antag_roles(mind)
 	ghostize(0)
 	qdel(src)
@@ -432,3 +430,9 @@
 		return
 
 	os.ui_interact(src)
+
+/mob/living/silicon/get_admin_job_string()
+	return "Silicon-based"
+
+/mob/living/silicon/get_telecomms_race_info()
+	return list("Artificial Life", TRUE)

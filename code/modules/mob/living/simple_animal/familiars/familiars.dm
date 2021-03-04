@@ -10,9 +10,10 @@
 	universal_speak = FALSE
 	universal_understand = TRUE
 
-	min_gas = list(MAT_OXYGEN = 1)
+	min_gas = list(/decl/material/gas/oxygen = 1)
 	max_gas = null
 	unsuitable_atmos_damage = 1
+	gene_damage = -1
 
 	var/list/wizardy_spells = list()
 
@@ -133,7 +134,7 @@
 		icon_state = icon_rest
 
 /mob/living/simple_animal/familiar/pet/mouse
-	name = "elderly snaprat"
+	name = "elderly mouse"
 	desc = "A small rodent. It looks very old."
 	icon_state = "mouse_gray"
 	icon_living = "mouse_gray"

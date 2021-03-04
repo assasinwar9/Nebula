@@ -14,8 +14,6 @@
 	. = ..()
 
 	id = "[random_id(/obj/machinery/computer/teleporter, 1000, 9999)]"
-	underlays.Cut()
-	underlays += image('icons/obj/stationobjs.dmi', icon_state = "telecomp-wires")
 
 	station = locate(/obj/machinery/teleport/station, get_step(src, turn(dir, 90)))
 	if(station)
@@ -43,7 +41,7 @@
 		to_chat(user, "<span class='notice'>The console is locked on to \[[T.loc.name]\].</span>")
 
 
-/obj/machinery/computer/teleporter/attackby(var/obj/I, var/mob/living/user)
+/obj/machinery/computer/teleporter/attackby(var/obj/I, var/mob/user)
 	if(istype(I, /obj/item/card/data/))
 		var/obj/item/card/data/C = I
 		if(stat & (NOPOWER|BROKEN) & (C.function != "teleporter"))
@@ -71,7 +69,7 @@
 			if(C.data == "Clown Land")
 				//whoops
 				for(var/mob/O in hearers(src, null))
-					O.show_message("<span class='warning'>Incoming bluespace portal detected, unable to lock in.</span>", 2)
+					O.show_message("<span class='warning'>Incoming wormhole detected, unable to lock in.</span>", 2)
 
 				for(var/obj/machinery/teleport/hub/H in range(1))
 					var/amount = rand(2,5)
@@ -202,11 +200,6 @@
 	active_power_usage = 2000
 	var/obj/machinery/computer/teleporter/com
 
-/obj/machinery/teleport/hub/Initialize()
-	. = ..()
-	underlays.Cut()
-	underlays += image('icons/obj/stationobjs.dmi', icon_state = "tele-wires")
-
 /obj/machinery/teleport/hub/Bumped(var/atom/movable/M)
 	spawn()
 		if (src.icon_state == "tele1")
@@ -234,11 +227,6 @@
 	active_power_usage = 2000
 	var/obj/machinery/computer/teleporter/com
 	var/obj/machinery/teleport/hub/hub
-
-/obj/machinery/teleport/station/Initialize()
-	. = ..()
-	overlays.Cut()
-	overlays += image('icons/obj/stationobjs.dmi', icon_state = "controller-wires")
 
 /obj/machinery/teleport/station/attackby(var/obj/item/W, var/mob/user)
 	attack_hand(user)

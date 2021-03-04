@@ -62,15 +62,9 @@
 		else
 			light = new /datum/light_source(src, .)
 
-/atom/Destroy()
-	if(light)
-		light.destroy()
-		light = null
-	return ..()
-
 /atom/set_opacity()
 	. = ..()
 	if(.)
 		var/turf/T = loc
 		if(istype(T))
-			T.handle_opacity_change(src)
+			T.RecalculateOpacity()

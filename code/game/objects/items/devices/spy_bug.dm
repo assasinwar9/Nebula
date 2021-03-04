@@ -40,7 +40,7 @@
 /obj/item/spy_bug/attack_self(mob/user)
 	radio.attack_self(user)
 
-/obj/item/spy_bug/attackby(obj/W, mob/living/user)
+/obj/item/spy_bug/attackby(obj/W, mob/user)
 	if(istype(W, /obj/item/spy_monitor))
 		var/obj/item/spy_monitor/SM = W
 		SM.pair(src, user)
@@ -54,8 +54,9 @@
 /obj/item/spy_monitor
 	name = "\improper PDA"
 	desc = "A portable microcomputer by Thinktronic Systems, LTD. Functionality determined by a preprogrammed ROM cartridge."
-	icon = 'icons/obj/modular_computers/modular_pda.dmi'
-	icon_state = "pda"
+	icon = 'icons/obj/modular_computers/pda/pda.dmi'
+	icon_state = ICON_STATE_WORLD
+	color = COLOR_GRAY80
 
 	w_class = ITEM_SIZE_SMALL
 
@@ -87,7 +88,7 @@
 	radio.attack_self(user)
 	view_cameras(user)
 
-/obj/item/spy_monitor/attackby(obj/W, mob/living/user)
+/obj/item/spy_monitor/attackby(obj/W, mob/user)
 	if(istype(W, /obj/item/spy_bug))
 		pair(W, user)
 	else

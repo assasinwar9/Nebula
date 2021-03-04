@@ -7,7 +7,7 @@
 	. = mind.StoreMemory(memory, options)
 
 /datum/mind/proc/StoreMemory(var/memory, var/options)
-	var/decl/memory_options/MO = decls_repository.get_decl(options || /decl/memory_options/default)
+	var/decl/memory_options/MO = GET_DECL(options || /decl/memory_options/default)
 	return MO.Create(src, memory)
 
 /datum/mind/proc/RemoveMemory(var/datum/memory/memory, var/mob/remover)
@@ -37,9 +37,9 @@
 
 /datum/mind/proc/MemoryTags()
 	. = list()
-	var/list/all_antag_types = GLOB.all_antag_types_
+	var/list/all_antag_types = decls_repository.get_decls_of_subtype(/decl/special_role)
 	for(var/antag_type in all_antag_types)
-		var/datum/antagonist/antag = all_antag_types[antag_type]
+		var/decl/special_role/antag = all_antag_types[antag_type]
 		if(antag.is_antagonist(src))
 			. += antag_type
 

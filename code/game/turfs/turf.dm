@@ -35,18 +35,34 @@
 
 	var/tmp/changing_turf
 
+	var/prev_type // Previous type of the turf, prior to turf translation.
+
 /turf/Initialize(mapload, ...)
 	. = ..()
 	if(dynamic_lighting)
 		luminosity = 0
 	else
 		luminosity = 1
-	opaque_counter = opacity
-	if (mapload && permit_ao)
-		queue_ao()
+	RecalculateOpacity()
+
+	if(mapload)
+		queue_ao(TRUE)
+		queue_icon_update()
+		update_starlight()
+	else
+		regenerate_ao()
+		for(var/thing in RANGE_TURFS(src, 1))
+			var/turf/T = thing
+			if(istype(T))
+				T.update_starlight()
+				T.queue_icon_update()
+		SSair.mark_for_update(src)
+	updateVisibility(src, FALSE)
+
 	if (z_flags & ZM_MIMIC_BELOW)
 		setup_zmimic(mapload)
-	update_starlight()
+	if(flooded && !density)
+		fluid_update(FALSE)
 
 /turf/on_update_icon()
 	update_flood_overlay()
@@ -60,8 +76,9 @@
 		QDEL_NULL(flood_object)
 
 /turf/Destroy()
+
 	if (!changing_turf)
-		crash_with("Improper turf qdel. Do not qdel turfs directly.")
+		PRINT_STACK_TRACE("Improper turf qdel. Do not qdel turfs directly.")
 
 	changing_turf = FALSE
 
@@ -79,11 +96,15 @@
 	if (bound_overlay)
 		QDEL_NULL(bound_overlay)
 
+	if(connections) 
+		connections.erase_all()
+
 	..()
 	return QDEL_HINT_IWILLGC
 
-/turf/ex_act(severity)
-	return 0
+/turf/explosion_act(severity)
+	SHOULD_CALL_PARENT(FALSE)
+	return
 
 /turf/proc/is_solid_structure()
 	return 1
@@ -111,16 +132,27 @@
 		attack_hand(user)
 
 /turf/attackby(obj/item/W, mob/user)
+
+	if(ATOM_IS_OPEN_CONTAINER(W) && W.reagents)
+		var/obj/effect/fluid/F = locate() in src
+		if(F && F.reagents?.total_volume >= FLUID_PUDDLE)
+			var/taking = min(F.reagents?.total_volume, REAGENTS_FREE_SPACE(W.reagents))
+			if(taking > 0)
+				to_chat(user, SPAN_NOTICE("You fill \the [W] with [F.reagents.get_primary_reagent_name()] from \the [src]."))
+				F.reagents.trans_to(W, taking)
+				return TRUE
+
 	if(istype(W, /obj/item/storage))
 		var/obj/item/storage/S = W
 		if(S.use_to_pickup && S.collection_mode)
 			S.gather_all(src, user)
 		return TRUE
 
-	else if(istype(W, /obj/item/grab))
+	if(istype(W, /obj/item/grab))
 		var/obj/item/grab/G = W
 		step(G.affecting, get_dir(G.affecting.loc, src))
 		return TRUE
+
 	return ..()
 
 /turf/Enter(atom/movable/mover, atom/forget)
@@ -203,7 +235,7 @@ var/const/enterloopsanity = 100
 
 /turf/proc/AdjacentTurfs(var/check_blockage = TRUE)
 	. = list()
-	for(var/turf/t in (trange(1,src) - src))
+	for(var/turf/t in (RANGE_TURFS(src, 1) - src))
 		if(check_blockage)
 			if(!t.density)
 				if(!LinkBlocked(src, t) && !TurfBlockedNonWindow(t))
@@ -242,22 +274,9 @@ var/const/enterloopsanity = 100
 			return 1
 	return 0
 
-//expects an atom containing the reagents used to clean the turf
-/turf/proc/clean(atom/source, mob/user = null, var/time = null, var/message = null)
-	if(source.reagents.has_reagent(/decl/reagent/water, 1) || source.reagents.has_reagent(/decl/reagent/cleaner, 1))
-		if(user && time && !do_after(user, time, src))
-			return
-		clean_blood()
-		remove_cleanables()
-		if(message)
-			to_chat(user, message)
-	else
-		to_chat(user, "<span class='warning'>\The [source] is too dry to wash that.</span>")
-	source.reagents.trans_to_turf(src, 1, 10)	//10 is the multiplier for the reaction effect. probably needed to wet the floor properly.
-
 /turf/proc/remove_cleanables()
 	for(var/obj/effect/O in src)
-		if(istype(O,/obj/effect/rune) || istype(O,/obj/effect/decal/cleanable) || istype(O,/obj/effect/overlay))
+		if(istype(O,/obj/effect/rune) || istype(O,/obj/effect/decal/cleanable))
 			qdel(O)
 
 /turf/proc/update_blood_overlays()
@@ -270,7 +289,8 @@ var/const/enterloopsanity = 100
 
 // Called when turf is hit by a thrown object
 /turf/hitby(atom/movable/AM, var/datum/thrownthing/TT)
-	if(src.density)
+	..()
+	if(density)
 		if(isliving(AM))
 			var/mob/living/M = AM
 			M.turf_collision(src, TT.speed)
@@ -340,10 +360,14 @@ var/const/enterloopsanity = 100
 	if(!A.show_starlight)
 		return
 	//Let's make sure not to break everything if people use a crazy setting.
-	var/turf/T = locate(/turf/simulated) in RANGE_TURFS(src,1)
-	if(T)
-		A = get_area(T)
-		if(A && A.dynamic_lighting)
-			set_light(min(0.1*config.starlight, 1), 1, 3, l_color = SSskybox.background_color)
-			return
+	for(var/thing in RANGE_TURFS(src,1))
+		if(istype(thing, /turf/simulated))
+			var/turf/simulated/T = thing
+			A = get_area(T)
+			if(A?.dynamic_lighting)
+				set_light(min(0.1*config.starlight, 1), 1, 3, l_color = SSskybox.background_color)
+				return
 	set_light(0)
+
+/turf/proc/get_footstep_sound(var/mob/caller)
+	return

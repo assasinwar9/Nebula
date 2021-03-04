@@ -110,6 +110,10 @@ var/list/adminhelp_ignored_words = list("unknown","the","a","an","of","monkey","
 	ticket.msgs += new /datum/ticket_msg(src.ckey, null, original_msg)
 	update_ticket_panels()
 
+	if(establish_db_connection())
+		var/sql_text = "HELP [src.ckey]: [sanitizeSQL(original_msg)]\n"
+		var/DBQuery/ticket_text = dbcon.NewQuery("UPDATE `erro_admin_tickets` SET `text` = '[sql_text]' WHERE `round` = '[game_id]' AND `inround_id` = '[ticket.id]';")
+		ticket_text.Execute()
 
 	//Options bar:  mob, details ( admin = 2, dev = 3, character name (0 = just ckey, 1 = ckey and character name), link? (0 no don't make it a link, 1 do so),
 	//		highlight special roles (0 = everyone has same looking name, 1 = antags / special roles get a golden name)
@@ -136,5 +140,8 @@ var/list/adminhelp_ignored_words = list("unknown","the","a","an","of","monkey","
 		adminmsg2adminirc(src, null, "[html_decode(original_msg)]")
 
 	SSstatistics.add_field_details("admin_verb","AH") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+
+	SSwebhooks.send(WEBHOOK_AHELP_SENT, list("name" = "Ticket ([ticket.id]) (Game ID: [game_id]) Ticket Opened", "body" = "[ticket.owner.key_name(0)] has opened a ticket. Subject: [original_msg]"))
+
 	return
 

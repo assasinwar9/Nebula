@@ -122,13 +122,14 @@
 	desc = "A refrigerated vending unit for alcoholic beverages and alcoholic beverage accessories."
 	icon_state = "fridge_dark"
 	icon_deny = "fridge_dark-deny"
+	markup = 0
 	products = list(
 		/obj/item/chems/food/drinks/glass2/square = 10,
 		/obj/item/chems/food/drinks/flask/barflask = 5,
 		/obj/item/chems/food/drinks/flask/vacuumflask = 5,
 		/obj/item/chems/food/drinks/bottle/gin = 5,
 		/obj/item/chems/food/drinks/bottle/whiskey = 5,
-		/obj/item/chems/food/drinks/bottle/tequilla = 5,
+		/obj/item/chems/food/drinks/bottle/tequila = 5,
 		/obj/item/chems/food/drinks/bottle/vodka = 5,
 		/obj/item/chems/food/drinks/bottle/vermouth = 5,
 		/obj/item/chems/food/drinks/bottle/rum = 5,
@@ -140,7 +141,6 @@
 		/obj/item/chems/food/drinks/bottle/melonliquor = 5,
 		/obj/item/chems/food/drinks/bottle/bluecuracao = 5,
 		/obj/item/chems/food/drinks/bottle/absinthe = 5,
-		/obj/item/chems/food/drinks/bottle/bottleofnothing =5,
 		/obj/item/chems/food/drinks/bottle/champagne = 5,
 		/obj/item/chems/food/drinks/bottle/herbal = 5,
 		/obj/item/chems/food/drinks/bottle/small/beer = 15,

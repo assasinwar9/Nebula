@@ -94,7 +94,7 @@
 
 /obj/item/electronic_assembly/create_matter()
 	..()
-	LAZYSET(matter, MAT_STEEL, round((max_complexity + max_components) / 4) * SScircuit.cost_multiplier)
+	LAZYSET(matter, /decl/material/solid/metal/steel, round((max_complexity + max_components) / 4) * SScircuit.cost_multiplier)
 
 /obj/item/electronic_assembly/Initialize()
 	. = ..()
@@ -123,11 +123,11 @@
 			if(power_failure || !draw_power(IC.power_draw_idle))
 				IC.power_fail()
 
-/obj/item/electronic_assembly/MouseDrop_T(atom/dropping, mob/user)
-	if(user == dropping)
+/obj/item/electronic_assembly/receive_mouse_drop(atom/dropping, mob/user)
+	. = ..()
+	if(!. && user == dropping)
 		interact(user)
-	else
-		..()
+		return TRUE
 
 /obj/item/electronic_assembly/interact(mob/user)
 	if(!check_interactivity(user))
@@ -410,7 +410,7 @@
 				visible_message("<span class='notice'>\The [user] points \the [src] towards \the [target].</span>")
 
 
-/obj/item/electronic_assembly/attackby(obj/item/I, mob/living/user)
+/obj/item/electronic_assembly/attackby(obj/item/I, mob/user)
 	if(istype(I, /obj/item/wrench))
 		if(istype(loc, /turf) && (IC_FLAG_ANCHORABLE & circuit_flags))
 			user.visible_message("\The [user] wrenches \the [src]'s anchoring bolts [anchored ? "back" : "into position"].")
@@ -546,13 +546,13 @@
 	name = "type-e electronic assembly"
 	icon_state = "setup_small_hook"
 	desc = "It's a case, for building small electronics with. This one looks like it has a belt clip."
-	slot_flags = SLOT_BELT
+	slot_flags = SLOT_LOWER_BODY
 
 /obj/item/electronic_assembly/pda
 	name = "type-f electronic assembly"
 	icon_state = "setup_small_pda"
 	desc = "It's a case, for building small electronics with. This one resembles a PDA."
-	slot_flags = SLOT_BELT | SLOT_ID
+	slot_flags = SLOT_LOWER_BODY | SLOT_ID
 
 /obj/item/electronic_assembly/augment
 	name = "augment electronic assembly"

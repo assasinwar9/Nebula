@@ -40,19 +40,17 @@
 	if(attached)
 		overlays += image('icons/obj/bloodpack.dmi', "dongle")
 
-/obj/item/chems/ivbag/MouseDrop(over_object, src_location, over_location)
-	if(!CanMouseDrop(over_object))
-		return
-	if(!ismob(loc))
-		return
-	if(attached)
-		visible_message("\The [attached] is taken off \the [src]")
-		attached = null
-	else if(ishuman(over_object))
-		if(do_IV_hookup(over_object, usr, src))
-			attached = over_object
-			START_PROCESSING(SSobj,src)
-	update_icon()
+/obj/item/chems/ivbag/handle_mouse_drop(atom/over, mob/user)
+	if(ismob(loc))
+		if(attached)
+			visible_message(SPAN_NOTICE("\The [attached] is taken off \the [src]."))
+			attached = null
+		else if(ishuman(over) && do_IV_hookup(over, user, src))
+			attached = over
+			START_PROCESSING(SSobj, src)
+		update_icon()
+		return TRUE
+	. = ..()
 
 /obj/item/chems/ivbag/Process()
 	if(!ismob(loc))
@@ -68,7 +66,7 @@
 		return PROCESS_KILL
 
 	var/mob/M = loc
-	if(M.l_hand != src && M.r_hand != src)
+	if(!(src in M.get_held_items()))
 		return
 
 	if(!reagents.total_volume)
@@ -79,7 +77,7 @@
 
 /obj/item/chems/ivbag/nanoblood/Initialize()
 	. = ..()
-	reagents.add_reagent(/decl/reagent/nanoblood, volume)
+	reagents.add_reagent(/decl/material/liquid/nanoblood, volume)
 
 /obj/item/chems/ivbag/blood
 	name = "blood pack"
@@ -89,7 +87,7 @@
 	. = ..()
 	if(blood_type)
 		name = "blood pack [blood_type]"
-		reagents.add_reagent(/decl/reagent/blood, volume, list("donor" = null, "blood_DNA" = null, "blood_type" = blood_type, "trace_chem" = null))
+		reagents.add_reagent(/decl/material/liquid/blood, volume, list("donor" = null, "blood_DNA" = null, "blood_type" = blood_type, "trace_chem" = null))
 
 /obj/item/chems/ivbag/blood/APlus
 	blood_type = "A+"

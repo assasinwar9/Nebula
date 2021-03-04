@@ -9,12 +9,6 @@
 				break
 	return fluid_can_pass
 
-/turf/proc/add_fluid(var/amount, var/fluid = /decl/reagent/water)
-	if(!flooded)
-		var/obj/effect/fluid/F = locate() in src
-		if(!F) F = new(src)
-		F.reagents.add_reagent(fluid, amount)
-
 /turf/proc/remove_fluid(var/amount = 0)
 	var/obj/effect/fluid/F = locate() in src
 	if(F)
@@ -47,12 +41,6 @@
 	if(aquarium && aquarium.reagents && aquarium.reagents.total_volume)
 		return aquarium.reagents.total_volume * TANK_WATER_MULTIPLIER
 	return 0
-
-/turf/ChangeTurf(var/turf/N, var/tell_universe=1, var/force_lighting_update = 0)
-	. = ..()
-	var/turf/T = .
-	if(isturf(T) && !T.flooded && T.flood_object)
-		QDEL_NULL(flood_object)
 
 /turf/proc/show_bubbles()
 	set waitfor = 0

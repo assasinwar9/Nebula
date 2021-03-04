@@ -68,36 +68,35 @@
 		update_icon()
 		src.add_fingerprint(user)
 
-/obj/machinery/self_destruct/MouseDrop(atom/over)
-	if(!CanMouseDrop(over, usr))
-		return
-	if(over == usr && cylinder)
+/obj/machinery/self_destruct/handle_mouse_drop(var/atom/over, var/mob/user)
+	if(over == user && cylinder)
 		if(armed)
-			to_chat(usr, "Disarm the cylinder first.")
-		else
-			usr.visible_message("[usr] beings to carefully pick up [cylinder].", "You begin to carefully pick up [cylinder].")
-			if(do_after(usr, 70, src))
-				usr.put_in_hands(cylinder)
-				usr.visible_message("[usr] picks up [cylinder].", "You pick up [cylinder].")
-				density = 0
-				cylinder = null
+			to_chat(user, SPAN_WARNING("Disarm the cylinder first."))
+			return TRUE
+		user.visible_message( \
+			SPAN_NOTICE("\The [user] beings to carefully pick up \the [cylinder]."), \
+			SPAN_NOTICE("You begin to carefully pick up \the [cylinder]."))
+		if(!do_after(user, 70, src) || !cylinder)
+			return TRUE
+		user.put_in_hands(cylinder)
+		user.visible_message( \
+			SPAN_NOTICE("\The [user] picks up \the [cylinder]."), \
+			SPAN_NOTICE("You pick up \the [cylinder]."))
+		density = FALSE
+		cylinder = null
 		update_icon()
-		src.add_fingerprint(usr)
-	..()
+		add_fingerprint(user)
+		return TRUE
+	. = ..()
 
-/obj/machinery/self_destruct/ex_act(severity)
-	switch(severity)
-		if(1)
-			set_damaged()
-		if(2)
-			if(prob(50))
-				set_damaged()
-		if(3)
-			if(prob(25))
-				set_damaged()
+/obj/machinery/self_destruct/explosion_act(severity)
+	..()
+	if(!QDELETED(src) && (severity == 1 || (prob(100 - (25 * severity)))))
+		set_damaged()
 
 /obj/machinery/self_destruct/proc/set_damaged()
-		src.visible_message("<span class='warning'>[src] dents and chars.</span>")
+	if(!damaged)
+		visible_message(SPAN_DANGER("\The [src] dents and chars."))
 		damaged = 1
 
 /obj/machinery/self_destruct/examine(mob/user)

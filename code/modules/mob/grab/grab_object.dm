@@ -22,7 +22,7 @@
 	if(. == INITIALIZE_HINT_QDEL)
 		return
 
-	current_grab = decls_repository.get_decl(use_grab_state)
+	current_grab = GET_DECL(use_grab_state)
 	if(!istype(current_grab))
 		return INITIALIZE_HINT_QDEL
 	assailant = loc
@@ -92,6 +92,8 @@
 	current_grab.hit_with_grab(src)
 
 /obj/item/grab/resolve_attackby(atom/A, mob/user, var/click_params)
+	if(QDELETED(src) || !assailant)
+		return TRUE
 	assailant.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 	if(!A.grab_attack(src))
 		return ..()
@@ -141,7 +143,7 @@
 
 /obj/item/grab/proc/on_organ_loss(mob/victim, obj/item/organ/lost)
 	if(affecting != victim)
-		crash_with("A grab switched affecting targets without properly re-registering for dismemberment updates.")
+		PRINT_STACK_TRACE("A grab switched affecting targets without properly re-registering for dismemberment updates.")
 		return
 	var/obj/item/organ/O = get_targeted_organ()
 	if(!istype(O))
@@ -225,7 +227,7 @@
 	current_grab.handle_resist(src)
 
 /obj/item/grab/proc/adjust_position(var/force = 0)
-	if(force)	
+	if(force)
 		affecting.forceMove(assailant.loc)
 	if(!assailant || !affecting || !assailant.Adjacent(affecting))
 		qdel(src)
@@ -273,6 +275,7 @@
 	return current_grab.grab_slowdown
 
 /obj/item/grab/proc/assailant_moved()
+	affecting.glide_size = assailant.glide_size // Note that this is called _after_ the Move() call resolves, so while it adjusts affecting's move animation, it won't adjust anything else depending on it.
 	current_grab.assailant_moved(src)
 
 /obj/item/grab/proc/restrains()

@@ -4,9 +4,9 @@
 	icon = 'icons/obj/items/device/radio/beacon.dmi'
 	icon_state = "beacon"
 	item_state = "signaler"
-	origin_tech = "{'bluespace':1}"
-	material = MAT_ALUMINIUM
-	matter = list(MAT_GLASS = MATTER_AMOUNT_REINFORCEMENT)
+	origin_tech = "{'wormholes':1}"
+	material = /decl/material/solid/metal/aluminium
+	matter = list(/decl/material/solid/glass = MATTER_AMOUNT_REINFORCEMENT)
 
 	var/code = "electronic"
 	var/functioning = TRUE
@@ -63,7 +63,7 @@
 	var/turf/T = get_turf(src)
 	hide(hides_under_flooring() && !T.is_plating())
 
-/obj/item/radio/beacon/anchored/attackby(obj/item/I, mob/living/user)
+/obj/item/radio/beacon/anchored/attackby(obj/item/I, mob/user)
 	..()
 	if(istype(I, /obj/item/stack/nanopaste))
 		var/obj/item/stack/nanopaste/S = I

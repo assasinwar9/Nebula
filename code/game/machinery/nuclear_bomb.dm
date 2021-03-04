@@ -15,6 +15,8 @@ var/bomb_set
 	var/extended = 0
 	var/lighthack = 0
 	var/timeleft = 120
+	var/minTime = 120
+	var/maxTime = 600
 	var/timing = 0
 	var/r_code = "ADMIN"
 	var/code = ""
@@ -263,7 +265,7 @@ var/bomb_set
 
 				var/time = text2num(href_list["time"])
 				timeleft += time
-				timeleft = Clamp(timeleft, 120, 600)
+				timeleft = Clamp(timeleft, minTime, maxTime)
 			if(href_list["timer"])
 				if(timing == -1)
 					return 1
@@ -294,7 +296,7 @@ var/bomb_set
 					visible_message("<span class='warning'>\The [src] makes a highly unpleasant crunching noise. It looks like the anchoring bolts have been cut.</span>")
 					return 1
 
-				if(!isinspace())
+				if(!isspaceturf(get_turf(src)))
 					anchored = !anchored
 					if(anchored)
 						visible_message("<span class='warning'>With a steely snap, bolts slide out of \the [src] and anchor it to the flooring.</span>")
@@ -309,7 +311,7 @@ var/bomb_set
 	timing = 1
 	log_and_message_admins("activated the detonation countdown of \the [src]")
 	bomb_set++ //There can still be issues with this resetting when there are multiple bombs. Not a big deal though for Nuke/N
-	var/decl/security_state/security_state = decls_repository.get_decl(GLOB.using_map.security_state)
+	var/decl/security_state/security_state = GET_DECL(GLOB.using_map.security_state)
 	original_level = security_state.current_security_level
 	security_state.set_security_level(security_state.severe_security_level, TRUE)
 	update_icon()
@@ -320,7 +322,7 @@ var/bomb_set
 /obj/machinery/nuclearbomb/proc/secure_device()
 	if(timing <= 0)
 		return
-	var/decl/security_state/security_state = decls_repository.get_decl(GLOB.using_map.security_state)
+	var/decl/security_state/security_state = GET_DECL(GLOB.using_map.security_state)
 	security_state.set_security_level(original_level, TRUE)
 	bomb_set--
 	safety = TRUE
@@ -328,7 +330,8 @@ var/bomb_set
 	timeleft = Clamp(timeleft, 120, 600)
 	update_icon()
 
-/obj/machinery/nuclearbomb/ex_act(severity)
+/obj/machinery/nuclearbomb/explosion_act(severity)
+	SHOULD_CALL_PARENT(FALSE)
 	return
 
 #define NUKERANGE 80
@@ -359,11 +362,8 @@ var/bomb_set
 /obj/item/disk/nuclear
 	name = "nuclear authentication disk"
 	desc = "Better keep this safe."
-	icon = 'icons/obj/items/device/diskette.dmi'
-	icon_state = "nucleardisk"
-	item_state = "card-id"
-	w_class = ITEM_SIZE_TINY
-
+	color = COLOR_GRAY20
+	label = "label_warning"
 
 /obj/item/disk/nuclear/Initialize()
 	. = ..()
@@ -449,6 +449,10 @@ var/bomb_set
 	deployable = 1
 	extended = 1
 
+	timeleft = 300
+	minTime = 300
+	maxTime = 900
+
 	var/list/flash_tiles = list()
 	var/list/inserters = list()
 	var/last_turf_state
@@ -477,15 +481,6 @@ var/bomb_set
 
 	if(href_list["anchor"])
 		return
-
-	if(href_list["time"])
-		if(timing)
-			to_chat(usr, "<span class='warning'>Cannot alter the timing during countdown.</span>")
-			return
-		var/time = text2num(href_list["time"])
-		timeleft += time
-		timeleft = Clamp(timeleft, 300, 900)
-		return 1
 
 /obj/machinery/nuclearbomb/station/start_bomb()
 	for(var/inserter in inserters)

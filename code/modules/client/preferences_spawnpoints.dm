@@ -33,11 +33,11 @@ GLOBAL_VAR(spawntypes)
 
 #ifdef UNIT_TEST
 /datum/spawnpoint/Del()
-	crash_with("Spawn deleted: [log_info_line(src)]")
+	PRINT_STACK_TRACE("Spawn deleted: [log_info_line(src)]")
 	..()
 
 /datum/spawnpoint/Destroy()
-	crash_with("Spawn destroyed: [log_info_line(src)]")
+	PRINT_STACK_TRACE("Spawn destroyed: [log_info_line(src)]")
 	. = ..()
 #endif
 
@@ -76,15 +76,13 @@ GLOBAL_VAR(spawntypes)
 			// Store any held or equipped items.
 			var/obj/item/storage/backpack/pack = victim.back
 			if(istype(pack))
-				var/list/stuff_to_store = list()
-				if(victim.l_hand) stuff_to_store += victim.l_hand
-				if(victim.r_hand) stuff_to_store += victim.r_hand
-				for(var/atom/movable/thing in stuff_to_store)
+				for(var/atom/movable/thing in victim.get_held_items())
 					victim.drop_from_inventory(thing)
 					pack.handle_item_insertion(thing)
 
 			C.set_occupant(victim, 1)
 			victim.Sleeping(rand(1,3))
+			C.on_mob_spawn()
 			to_chat(victim,SPAN_NOTICE("You are slowly waking up from the cryostasis aboard [GLOB.using_map.full_name]. It might take a few seconds."))
 			return
 

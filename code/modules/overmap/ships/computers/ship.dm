@@ -14,26 +14,21 @@ somewhere on that shuttle. Subtypes of these can be then used to perform ship ov
 		return
 	if(sector.check_ownership(src))
 		linked = sector
-		LAZYSET(linked.consoles, src, TRUE)
+		linked.register_machine(src, /obj/machinery/computer/ship)
 		return 1
 
 /obj/machinery/computer/ship/Destroy()
 	if(linked)
-		LAZYREMOVE(linked.consoles, src)
+		linked.unregister_machine(src, /obj/machinery/computer/ship)
+		linked = null
 	. = ..()
 
 /obj/machinery/computer/ship/proc/sync_linked()
-	var/obj/effect/overmap/visitable/ship/sector = map_sectors["[z]"]
-	if(!sector)
+	var/obj/effect/overmap/visitable/ship/sector = get_owning_overmap_object()
+	if(!istype(sector))
 		return
-	return attempt_hook_up_recursive(sector)
-
-/obj/machinery/computer/ship/proc/attempt_hook_up_recursive(obj/effect/overmap/visitable/ship/sector)
-	if(attempt_hook_up(sector))
-		return sector
-	for(var/obj/effect/overmap/visitable/ship/candidate in sector)
-		if((. = .(candidate)))
-			return
+	attempt_hook_up(sector)
+	return linked
 
 /obj/machinery/computer/ship/proc/display_reconnect_dialog(var/mob/user, var/flavor)
 	var/datum/browser/written/popup = new (user, "[src]", "[src]")
@@ -65,6 +60,10 @@ somewhere on that shuttle. Subtypes of these can be then used to perform ship ov
 		user.reset_view(linked)
 	if(user.client)
 		user.client.view = world.view + extra_view
+	if(linked)
+		for(var/obj/machinery/computer/ship/sensors/sensor in linked.get_linked_machines_of_type(/obj/machinery/computer/ship))
+			sensor.reveal_contacts(user)
+
 	GLOB.moved_event.register(user, src, /obj/machinery/computer/ship/proc/unlook)
 	GLOB.stat_set_event.register(user, src, /obj/machinery/computer/ship/proc/unlook)
 	LAZYDISTINCTADD(viewers, weakref(user))
@@ -74,6 +73,11 @@ somewhere on that shuttle. Subtypes of these can be then used to perform ship ov
 	if(user.client)
 		user.client.view = world.view
 		user.client.OnResize()
+		user.reset_view()
+	if(linked)
+		for(var/obj/machinery/computer/ship/sensors/sensor in linked.get_linked_machines_of_type(/obj/machinery/computer/ship))
+			sensor.hide_contacts(user)
+
 	GLOB.moved_event.unregister(user, src, /obj/machinery/computer/ship/proc/unlook)
 	GLOB.stat_set_event.unregister(user, src, /obj/machinery/computer/ship/proc/unlook)
 	LAZYREMOVE(viewers, weakref(user))

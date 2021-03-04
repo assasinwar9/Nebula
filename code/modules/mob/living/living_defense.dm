@@ -131,6 +131,8 @@
 //this proc handles being hit by a thrown atom
 /mob/living/hitby(var/atom/movable/AM, var/datum/thrownthing/TT)
 
+	..()
+
 	if(isliving(AM))
 		var/mob/living/M = AM
 		playsound(loc, 'sound/weapons/pierce.ogg', 25, 1, -1)
@@ -310,6 +312,7 @@
 			if(!I.action)
 				I.action = new I.default_action_type
 			I.action.name = I.action_button_name
+			I.action.desc = I.action_button_desc
 			I.action.SetTarget(I)
 			I.action.Grant(src)
 	return
@@ -351,6 +354,7 @@
 		B.UpdateIcon()
 
 		B.SetName(A.UpdateName())
+		B.desc = A.UpdateDesc()
 
 		client.screen += B
 

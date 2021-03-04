@@ -5,8 +5,6 @@
 	name = "map object"
 	scannable = TRUE
 
-	var/list/map_z = list()
-
 	var/list/initial_generic_waypoints //store landmark_tag of landmarks that should be added to the actual lists below on init.
 	var/list/initial_restricted_waypoints //For use with non-automatic landmarks (automatic ones add themselves).
 
@@ -22,7 +20,38 @@
 	var/hide_from_reports = FALSE
 
 	var/has_distress_beacon
-	var/free_landing = FALSE				//whether or not shuttles can land in arbitrary places within the sector's z-levels.
+	var/free_landing = TRUE				// Whether or not shuttles can land in arbitrary places within the sector's z-levels.
+	var/restricted_area = 0				// Regardless of if free_landing is set to TRUE, this square area (centered on the z level) will be restricted from free shuttle landing unless permitted by a docking becaon.
+
+	var/list/map_z = list()
+	var/list/associated_machinery
+
+/obj/effect/overmap/visitable/proc/get_linked_machines_of_type(var/base_type)
+	ASSERT(ispath(base_type, /obj/machinery))
+	for(var/thing in LAZYACCESS(associated_machinery, base_type))
+		var/weakref/machine_ref = thing
+		var/obj/machinery/machine = machine_ref.resolve()
+		if(istype(machine, base_type) && !QDELETED(machine))
+			LAZYDISTINCTADD(., machine)
+		else
+			LAZYREMOVE(associated_machinery[base_type], thing)
+
+/obj/effect/overmap/visitable/proc/unregister_machine(var/obj/machinery/machine, var/base_type)
+	ASSERT(istype(machine))
+	base_type = base_type || machine.base_type || machine.type
+	if(islist(associated_machinery) && associated_machinery[base_type])
+		LAZYREMOVE(associated_machinery[base_type], weakref(machine))
+
+/obj/effect/overmap/visitable/proc/register_machine(var/obj/machinery/machine, var/base_type)
+	ASSERT(istype(machine))
+	if(!QDELETED(machine))
+		base_type = base_type || machine.base_type || machine.type
+		LAZYINITLIST(associated_machinery)
+		LAZYDISTINCTADD(associated_machinery[base_type], weakref(machine))
+
+/obj/effect/overmap/visitable/Destroy()
+	associated_machinery = null
+	. = ..()
 
 /obj/effect/overmap/visitable/Initialize()
 	. = ..()
@@ -73,6 +102,24 @@
 	if((object.z in map_z) && !(get_area(object) in SSshuttle.shuttle_areas))
 		return 1
 
+// Returns the /obj/effect/overmap/visitable to which the atom belongs based on localtion, or null
+/atom/proc/get_owning_overmap_object()
+	var/z = get_z(src)
+	var/list/check_sectors =   map_sectors["[z]"] ? list(map_sectors["[z]"]) : list()
+	var/list/checked_sectors = list()
+
+	while(length(check_sectors))
+		var/obj/effect/overmap/visitable/sector = check_sectors[1]
+		if(sector.check_ownership(src))
+			. = sector
+			break
+
+		check_sectors -= sector
+		checked_sectors += sector
+		for(var/obj/effect/overmap/visitable/next_sector in sector)
+			if(!(next_sector in checked_sectors))
+				check_sectors |= next_sector
+
 //If shuttle_name is false, will add to generic waypoints; otherwise will add to restricted. Does not do checks.
 /obj/effect/overmap/visitable/proc/add_landmark(obj/effect/shuttle_landmark/landmark, shuttle_name)
 	landmark.sector_set(src, shuttle_name)
@@ -100,6 +147,18 @@
 
 /obj/effect/overmap/visitable/proc/generate_skybox()
 	return
+
+/obj/effect/overmap/visitable/MouseEntered(location, control, params)
+	openToolTip(user = usr, tip_src = src, params = params, title = name)
+	..()
+
+/obj/effect/overmap/visitable/MouseDown()
+	closeToolTip(usr) //No reason not to, really
+	..()
+
+/obj/effect/overmap/visitable/MouseExited()
+	closeToolTip(usr) //No reason not to, really
+	..()
 
 /obj/effect/overmap/visitable/sector
 	name = "generic sector"
@@ -134,3 +193,19 @@
 
 	testing("Overmap build complete.")
 	return 1
+
+/obj/effect/overmap/visitable/proc/allow_free_landing(var/datum/shuttle/landing_shuttle)
+	return free_landing
+
+/obj/effect/overmap/visitable/handle_overmap_pixel_movement()
+	..()
+	for(var/thing in get_linked_machines_of_type(/obj/machinery/computer/ship))
+		var/obj/machinery/computer/ship/machine = thing
+		if(machine.z in map_z)
+			for(var/weakref/W in machine.viewers)
+				var/mob/M = W.resolve()
+				if(istype(M) && M.client)
+					M.client.default_pixel_x = pixel_x
+					M.client.default_pixel_y = pixel_y
+					M.client.pixel_x = pixel_x
+					M.client.pixel_y = pixel_y

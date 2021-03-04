@@ -10,7 +10,7 @@
 	var/usage_flags = PROGRAM_ALL
 	var/external_slot				// Whether attackby will be passed on it even with a closed panel
 
-/obj/item/stock_parts/computer/attackby(var/obj/item/W, var/mob/living/user)
+/obj/item/stock_parts/computer/attackby(var/obj/item/W, var/mob/user)
 	// Multitool. Runs diagnostics
 	if(isMultitool(W))
 		to_chat(user, "***** DIAGNOSTICS REPORT *****")
@@ -29,8 +29,9 @@
 
 /obj/item/stock_parts/computer/Destroy()
 	if(istype(loc, /obj/item/modular_computer))
-		var/obj/item/modular_computer/C = loc
-		C.uninstall_component(null, src)
+		var/datum/extension/assembly/modular_computer/assembly = get_extension(loc, /datum/extension/assembly)
+		if(assembly)
+			assembly.uninstall_component(null, src)
 	return ..()
 
 // Handles damage checks
